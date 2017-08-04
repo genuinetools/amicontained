@@ -5,6 +5,15 @@
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
 
+- [Installation](#installation)
+    + [Binaries](#binaries)
+    + [Via Go](#via-go)
+- [Usage](#usage)
+- [Examples](#examples)
+    + [docker](#docker)
+    + [lxc](#lxc)
+    + [unshare](#unshare)
+
 ## Installation
 
 #### Binaries
@@ -37,7 +46,7 @@ $ amicontained -h
 
 ## Examples
 
-**Docker**
+#### docker
 
 ```console
 $ docker run --rm -it r.j3ss.co/amicontained
@@ -72,7 +81,7 @@ Capabilities:
 Chroot/PivotRoot: true
 ```
 
-**lxc**
+#### lxc
 
 ```console
 $ lxc-attach -n xenial
@@ -99,7 +108,7 @@ Capabilities:
 Chroot/PivotRoot: true
 ```
 
-**unshare**
+#### unshare
 
 ```console
 $ sudo unshare --user -r
