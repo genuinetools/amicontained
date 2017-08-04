@@ -186,7 +186,8 @@ func Capabilities() (map[string][]string, error) {
 	return allowedCaps, nil
 }
 
-// Chroot detects if we are running in a chroot.
+// Chroot detects if we are running in a chroot or a pivot_root.
+// Currently, we can not distinguish between the two.
 func Chroot() (bool, error) {
 	var a, b syscall.Stat_t
 

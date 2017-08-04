@@ -110,6 +110,13 @@ func main() {
 			}
 		}
 	}
+
+	// Chroot
+	chroot, err := container.Chroot()
+	if err != nil {
+		logrus.Debugf("chroot check error: %v", err)
+	}
+	fmt.Printf("Chroot/PivotRoot: %t\n", chroot)
 }
 
 func usageAndExit(message string, exitCode int) {
