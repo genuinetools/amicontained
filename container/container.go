@@ -81,7 +81,7 @@ func DetectRuntime() (string, error) {
 
 // HasPIDNamespace determines if the container is using a PID namespace or the host PID namespace.
 // Since /proc/1/sched shows the host's PID for what we see as PID 1, if the PID shown
-// there is not 1, we know we are in a PID namespace. and hence a container.
+// there is not 1, we know we are in a PID namespace.
 func HasPIDNamespace() bool {
 	f := readFile("/proc/1/sched")
 	if len(f) > 0 {
@@ -102,38 +102,55 @@ func AppArmorProfile() string {
 	return f
 }
 
+// UserMapping holds the values for a {uid,gid}_map.
+type UserMapping struct {
+	ContainerID int64
+	HostID      int64
+	Range       int64
+}
+
 // UserNamespace determines if the container is running in a UserNamespace and returns the mappings if so.
-func UserNamespace() (bool, int64, int64, int64) {
+func UserNamespace() (bool, []UserMapping) {
+	var err error
+
 	f := readFile("/proc/self/uid_map")
 	if len(f) < 0 {
 		// user namespace is uninitialized
-		return true, -1, -1, -1
+		return true, nil
 	}
 
 	parts := strings.Split(f, " ")
 	parts = deleteEmpty(parts)
-	if len(parts) != 3 {
-		return false, 0, 0, 0
-	}
-	nsu, hu, r := parts[0], parts[1], parts[2]
-	uidInNs, err := strconv.ParseInt(nsu, 10, 0)
-	if err != nil {
-		return false, 0, 0, 0
-	}
-	uidInHost, err := strconv.ParseInt(hu, 10, 0)
-	if err != nil {
-		return false, 0, 0, 0
-	}
-	uidRange, err := strconv.ParseInt(r, 10, 0)
-	if err != nil {
-		return false, 0, 0, 0
+	if len(parts) < 3 {
+		return false, nil
 	}
 
-	if uidInNs == 0 && uidInHost == 0 && uidRange == uint32Max {
-		return false, 0, 0, 0
+	mappings := []UserMapping{}
+	for i := 0; i <= len(parts); i += 3 {
+		nsu, hu, r := parts[i], parts[i+1], parts[i+2]
+		mapping := UserMapping{}
+
+		mapping.ContainerID, err = strconv.ParseInt(nsu, 10, 0)
+		if err != nil {
+			return false, nil
+		}
+		mapping.HostID, err = strconv.ParseInt(hu, 10, 0)
+		if err != nil {
+			return false, nil
+		}
+		mapping.Range, err = strconv.ParseInt(r, 10, 0)
+		if err != nil {
+			return false, nil
+		}
+
+		if mapping.ContainerID == 0 && mapping.HostID == 0 && mapping.Range == uint32Max {
+			return false, nil
+		}
+
+		mappings = append(mappings, mapping)
 	}
 
-	return true, uidInNs, uidInHost, uidRange
+	return true, mappings
 }
 
 // Capabilities returns the allowed capabilities in the container.

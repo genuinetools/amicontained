@@ -84,13 +84,13 @@ func main() {
 	aaprof := container.AppArmorProfile()
 	fmt.Printf("AppArmor Profile: %s\n", aaprof)
 
-	userNS, containerUID, hostUID, uidRange := container.UserNamespace()
+	userNS, userMappings := container.UserNamespace()
 	fmt.Printf("User Namespace: %t\n", userNS)
-	if userNS {
-		fmt.Printf(`User Namespace Mappings:
-	Container -> %d
-	Host -> %d
-	Range -> %d`+"\n", containerUID, hostUID, uidRange)
+	if len(userMappings) > 0 {
+		fmt.Println("User Namespace Mappings:")
+		for _, userMapping := range userMappings {
+			fmt.Printf("\tContainer -> %d\tHost -> %d\tRange -> %d\n", userMapping.ContainerID, userMapping.HostID, userMapping.Range)
+		}
 	}
 
 	caps, err := container.Capabilities()
