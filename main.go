@@ -71,6 +71,7 @@ func init() {
 }
 
 func main() {
+	// Container Runtime
 	runtime, err := container.DetectRuntime()
 	if err != nil && err != container.ErrContainerRuntimeNotFound {
 		log.Fatal(err)
@@ -78,12 +79,15 @@ func main() {
 	}
 	fmt.Printf("Container Runtime: %s\n", runtime)
 
+	// PID Namespace
 	pidns := container.HasPIDNamespace()
 	fmt.Printf("Host PID Namespace: %t\n", !pidns)
 
+	// AppArmor Profile
 	aaprof := container.AppArmorProfile()
 	fmt.Printf("AppArmor Profile: %s\n", aaprof)
 
+	// User Namespaces
 	userNS, userMappings := container.UserNamespace()
 	fmt.Printf("User Namespace: %t\n", userNS)
 	if len(userMappings) > 0 {
@@ -93,6 +97,7 @@ func main() {
 		}
 	}
 
+	// Capabilities
 	caps, err := container.Capabilities()
 	if err != nil {
 		logrus.Warnf("getting capabilities failed: %v", err)

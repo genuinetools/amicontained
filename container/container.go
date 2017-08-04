@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/syndtr/gocapability/capability"
 )
@@ -183,6 +184,21 @@ func Capabilities() (map[string][]string, error) {
 	}
 
 	return allowedCaps, nil
+}
+
+// Chroot detects if we are running in a chroot.
+func Chroot() (bool, error) {
+	var a, b syscall.Stat_t
+
+	if err := syscall.Stat("/proc/1/root", &a); err != nil {
+		return false, err
+	}
+
+	if err := syscall.Stat("/", &b); err != nil {
+		return false, err
+	}
+
+	return a.Ino == b.Ino && a.Dev == b.Dev, nil
 }
 
 func fileExists(file string) bool {
