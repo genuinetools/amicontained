@@ -52,14 +52,11 @@ func DetectRuntime() (string, error) {
 		return RuntimeOpenVZ, nil
 	}
 
-	// If we are PID 1 we can check the container environment variable.
-	if os.Getpid() == 1 {
-		ctrenv := os.Getenv("container")
-		if ctrenv != "" {
-			for _, runtime := range runtimes {
-				if ctrenv == runtime {
-					return runtime, nil
-				}
+	ctrenv := os.Getenv("container")
+	if ctrenv != "" {
+		for _, runtime := range runtimes {
+			if ctrenv == runtime {
+				return runtime, nil
 			}
 		}
 	}
