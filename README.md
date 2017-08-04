@@ -13,6 +13,7 @@ well as features available.
     + [docker](#docker)
     + [lxc](#lxc)
     + [systemd-nspawn](#systemd-nspawn)
+    + [rkt](#rkt)
     + [unshare](#unshare)
 
 ## Installation
@@ -124,6 +125,30 @@ Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_raw ipc_owner sys_chroot sys_ptrace sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap
 Chroot/PivotRoot: true
 Container amicontained exited successfully.
+```
+
+#### rkt
+
+```console
+$ sudo rkt --insecure-options=image run docker://r.j3ss.co/amicontained
+[  631.522121] amicontained[5]: Container Runtime: rkt
+[  631.522471] amicontained[5]: Host PID Namespace: false
+[  631.522617] amicontained[5]: AppArmor Profile: none
+[  631.522768] amicontained[5]: User Namespace: false
+[  631.522922] amicontained[5]: Capabilities:
+[  631.523075] amicontained[5]: 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
+[  631.523213] amicontained[5]: Chroot/PivotRoot: false
+
+$ sudo rkt --insecure-options=image run  --private-users=true --no-overlay docker://r.j3ss.co/amicontained
+[  785.547050] amicontained[5]: Container Runtime: rkt
+[  785.547360] amicontained[5]: Host PID Namespace: false
+[  785.547567] amicontained[5]: AppArmor Profile: none
+[  785.547717] amicontained[5]: User Namespace: true
+[  785.547856] amicontained[5]: User Namespace Mappings:
+[  785.548064] amicontained[5]: 	Container -> 0	Host -> 229834752	Range -> 65536
+[  785.548335] amicontained[5]: Capabilities:
+[  785.548537] amicontained[5]: 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
+[  785.548679] amicontained[5]: Chroot/PivotRoot: false
 ```
 
 #### unshare
