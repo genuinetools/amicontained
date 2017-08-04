@@ -21,6 +21,18 @@ $ go get github.com/jessfraz/amicontained
 
 ```console
 $ amicontained -h
+                 _                 _        _                _
+  __ _ _ __ ___ (_) ___ ___  _ __ | |_ __ _(_)_ __   ___  __| |
+ / _` | '_ ` _ \| |/ __/ _ \| '_ \| __/ _` | | '_ \ / _ \/ _` |
+| (_| | | | | | | | (_| (_) | | | | || (_| | | | | |  __/ (_| |
+ \__,_|_| |_| |_|_|\___\___/|_| |_|\__\__,_|_|_| |_|\___|\__,_|
+ Container introspection tool.
+ Version: v0.0.1
+
+  -d	run in debug mode
+  -v	print version and exit (shorthand)
+  -version
+    	print version and exit
 ```
 
 ## Examples
