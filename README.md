@@ -25,7 +25,7 @@ $ amicontained -h
 
 ## Examples
 
-*****Docker**
+**Docker**
 
 ```console
 $ docker run --rm -it r.j3ss.co/amicontained
