@@ -12,6 +12,7 @@ well as features available.
 - [Examples](#examples)
     + [docker](#docker)
     + [lxc](#lxc)
+    + [systemd-nspawn](#systemd-nspawn)
     + [unshare](#unshare)
 
 ## Installation
@@ -106,6 +107,23 @@ User Namespace Mappings:
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
 Chroot/PivotRoot: true
+```
+
+#### systemd-nspawn
+
+```console
+$ sudo systemd-nspawn --machine amicontained --directory nspawn-amicontained /usr/bin/amicontained
+Spawning container amicontained on /home/jessfraz/nspawn-amicontained.
+Press ^] three times within 1s to kill container.
+Timezone UTC does not exist in container, not updating container timezone.
+Container Runtime: systemd-nspawn
+Host PID Namespace: false
+AppArmor Profile: none
+User Namespace: false
+Capabilities:
+	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_raw ipc_owner sys_chroot sys_ptrace sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap
+Chroot/PivotRoot: true
+Container amicontained exited successfully.
 ```
 
 #### unshare
