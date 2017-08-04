@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/jessfraz/amicontained/container"
 	"github.com/jessfraz/amicontained/version"
+	"github.com/sirupsen/logrus"
 )
 
 const (
