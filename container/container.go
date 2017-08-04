@@ -126,7 +126,7 @@ func UserNamespace() (bool, []UserMapping) {
 	}
 
 	mappings := []UserMapping{}
-	for i := 0; i <= len(parts); i += 3 {
+	for i := 0; i < len(parts); i += 3 {
 		nsu, hu, r := parts[i], parts[i+1], parts[i+2]
 		mapping := UserMapping{}
 
