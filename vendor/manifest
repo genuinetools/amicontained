@@ -18,6 +18,15 @@
 			"notests": true
 		},
 		{
+			"importpath": "github.com/syndtr/gocapability/capability",
+			"repository": "https://github.com/syndtr/gocapability",
+			"vcs": "git",
+			"revision": "db04d3cc01c8b54962a58ec7e491717d06cfcc16",
+			"branch": "master",
+			"path": "/capability",
+			"notests": true
+		},
+		{
 			"importpath": "golang.org/x/crypto/ssh/terminal",
 			"repository": "https://go.googlesource.com/crypto",
 			"vcs": "git",

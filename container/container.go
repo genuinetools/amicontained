@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/syndtr/gocapability/capability"
 )
 
 const (
@@ -132,6 +134,35 @@ func UserNamespace() (bool, int64, int64, int64) {
 	}
 
 	return true, uidInNs, uidInHost, uidRange
+}
+
+// Capabilities returns the allowed capabilities in the container.
+func Capabilities() (map[string][]string, error) {
+	allCaps := capability.List()
+
+	caps, err := capability.NewPid(0)
+	if err != nil {
+		return nil, err
+	}
+
+	allowedCaps := map[string][]string{}
+	allowedCaps["EFFECTIVE | PERMITTED | INHERITABLE"] = []string{}
+	allowedCaps["BOUNDING"] = []string{}
+	allowedCaps["AMBIENT"] = []string{}
+
+	for _, cap := range allCaps {
+		if caps.Get(capability.CAPS, cap) {
+			allowedCaps["EFFECTIVE | PERMITTED | INHERITABLE"] = append(allowedCaps["EFFECTIVE | PERMITTED | INHERITABLE"], cap.String())
+		}
+		if caps.Get(capability.BOUNDING, cap) {
+			allowedCaps["BOUNDING"] = append(allowedCaps["BOUNDING"], cap.String())
+		}
+		if caps.Get(capability.AMBIENT, cap) {
+			allowedCaps["AMBIENT"] = append(allowedCaps["AMBIENT"], cap.String())
+		}
+	}
+
+	return allowedCaps, nil
 }
 
 func fileExists(file string) bool {

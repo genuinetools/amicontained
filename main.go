@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/jessfraz/amicontained/container"
@@ -90,6 +91,19 @@ func main() {
 	Container -> %d
 	Host -> %d
 	Range -> %d`+"\n", containerUID, hostUID, uidRange)
+	}
+
+	caps, err := container.Capabilities()
+	if err != nil {
+		logrus.Warnf("getting capabilities failed: %v", err)
+	}
+	if len(caps) > 0 {
+		fmt.Println("Capabilities:")
+		for k, v := range caps {
+			if len(v) > 0 {
+				fmt.Printf("\t%s -> %s\n", k, strings.Join(v, " "))
+			}
+		}
 	}
 }
 
