@@ -111,46 +111,52 @@ type UserMapping struct {
 
 // UserNamespace determines if the container is running in a UserNamespace and returns the mappings if so.
 func UserNamespace() (bool, []UserMapping) {
-	var err error
-
 	f := readFile("/proc/self/uid_map")
 	if len(f) < 0 {
 		// user namespace is uninitialized
 		return true, nil
 	}
 
-	parts := strings.Split(f, " ")
-	parts = deleteEmpty(parts)
-	if len(parts) < 3 {
+	userNs, mappings, err := readUserMappings(f)
+	if err != nil {
 		return false, nil
 	}
 
-	mappings := []UserMapping{}
+	return userNs, mappings
+}
+
+func readUserMappings(f string) (iuserNS bool, mappings []UserMapping, err error) {
+	parts := strings.Split(f, " ")
+	parts = deleteEmpty(parts)
+	if len(parts) < 3 {
+		return false, nil, nil
+	}
+
 	for i := 0; i < len(parts); i += 3 {
 		nsu, hu, r := parts[i], parts[i+1], parts[i+2]
 		mapping := UserMapping{}
 
 		mapping.ContainerID, err = strconv.ParseInt(nsu, 10, 0)
 		if err != nil {
-			return false, nil
+			return false, nil, nil
 		}
 		mapping.HostID, err = strconv.ParseInt(hu, 10, 0)
 		if err != nil {
-			return false, nil
+			return false, nil, nil
 		}
 		mapping.Range, err = strconv.ParseInt(r, 10, 0)
 		if err != nil {
-			return false, nil
+			return false, nil, nil
 		}
 
 		if mapping.ContainerID == 0 && mapping.HostID == 0 && mapping.Range == uint32Max {
-			return false, nil
+			return false, nil, nil
 		}
 
 		mappings = append(mappings, mapping)
 	}
 
-	return true, mappings
+	return true, mappings, nil
 }
 
 // Capabilities returns the allowed capabilities in the container.
@@ -205,7 +211,7 @@ func deleteEmpty(s []string) []string {
 	var r []string
 	for _, str := range s {
 		if strings.TrimSpace(str) != "" {
-			r = append(r, str)
+			r = append(r, strings.TrimSpace(str))
 		}
 	}
 	return r
