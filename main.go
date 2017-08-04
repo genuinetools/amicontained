@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/jessfraz/amicontained/container"
 	"github.com/jessfraz/amicontained/version"
 )
 
@@ -68,6 +70,27 @@ func init() {
 }
 
 func main() {
+	runtime, err := container.DetectRuntime()
+	if err != nil && err != container.ErrContainerRuntimeNotFound {
+		log.Fatal(err)
+		return
+	}
+	fmt.Printf("Container Runtime: %s\n", runtime)
+
+	pidns := container.HasPIDNamespace()
+	fmt.Printf("Host PID Namespace: %t\n", !pidns)
+
+	aaprof := container.AppArmorProfile()
+	fmt.Printf("AppArmor Profile: %s\n", aaprof)
+
+	userNS, containerUID, hostUID, uidRange := container.UserNamespace()
+	fmt.Printf("User Namespace: %t\n", userNS)
+	if userNS {
+		fmt.Printf(`User Namespace Mappings:
+	Container -> %d
+	Host -> %d
+	Range -> %d`+"\n", containerUID, hostUID, uidRange)
+	}
 }
 
 func usageAndExit(message string, exitCode int) {

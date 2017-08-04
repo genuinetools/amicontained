@@ -22,3 +22,46 @@ $ go get github.com/jessfraz/amicontained
 ```console
 $ amicontained -h
 ```
+
+## Examples
+
+*****Docker**
+
+```console
+$ docker run --rm -it r.j3ss.co/amicontained
+Container Runtime: docker
+Host PID Namespace: false
+AppArmor Profile: docker-default (enforce)
+User Namespace: true
+User Namespace Mappings:
+	Container -> 0
+	Host -> 886432
+	Range -> 65536
+
+$ docker run --rm -it --pid host r.j3ss.co/amicontained
+Container Runtime: docker
+Host PID Namespace: true
+AppArmor Profile: docker-default (enforce)
+User Namespace: false
+
+$ docker run --rm -it --security-opt "apparmor=unconfined" r.j3ss.co/amicontained
+Container Runtime: docker
+Host PID Namespace: false
+AppArmor Profile: unconfined
+User Namespace: false
+```
+
+**unshare**
+
+```console
+$ sudo unshare --user -r
+root@coreos:/home/jessie/.go/src/github.com/jessfraz/amicontained# ./amicontained
+Container Runtime: not-found
+Host PID Namespace: true
+AppArmor Profile: unconfined
+User Namespace: true
+User Namespace Mappings:
+	Container -> 0
+	Host -> 0
+	Range -> 1
+```

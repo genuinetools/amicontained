@@ -1,0 +1,164 @@
+// Package container provides tools for introspecting containers.
+package container
+
+import (
+	"errors"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+)
+
+const (
+	// RuntimeDocker is the docker runtime.
+	RuntimeDocker = "docker"
+	// RuntimeRkt is the rkt runtime.
+	RuntimeRkt = "rkt"
+	// RuntimeNspawn is the systemd-nspawn runtime.
+	RuntimeNspawn = "systemd-nspawn"
+	// RuntimeLXC is the lxc runtime.
+	RuntimeLXC = "lxc"
+	// RuntimeLXCLibvirt is the lxc-libvirt runtime.
+	RuntimeLXCLibvirt = "lxc-libvirt"
+	// RuntimeOpenVZ is the openvz runtime.
+	RuntimeOpenVZ = "openvz"
+
+	uint32Max = 4294967295
+)
+
+var (
+	// ErrContainerRuntimeNotFound describes when a container runtime could not be found.
+	ErrContainerRuntimeNotFound = errors.New("container runtime could not be found")
+
+	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ}
+)
+
+// DetectRuntime returns the container runtime the process is running in.
+func DetectRuntime() (string, error) {
+	// read the cgroups file
+	cgroups := readFile("/proc/self/cgroup")
+	if len(cgroups) > 0 {
+		for _, runtime := range runtimes {
+			if strings.Contains(cgroups, runtime) {
+				return runtime, nil
+			}
+		}
+	}
+
+	// /proc/vz exists in container and outside of the container, /proc/bc only outside of the container.
+	if fileExists("/proc/vz") && !fileExists("/proc/bc") {
+		return RuntimeOpenVZ, nil
+	}
+
+	// If we are PID 1 we can check the container environment variable.
+	if os.Getpid() == 0 {
+		ctrenv := os.Getenv("container")
+		if ctrenv != "" {
+			for _, runtime := range runtimes {
+				if ctrenv == runtime {
+					return runtime, nil
+				}
+			}
+		}
+	}
+
+	// PID 1 might have dropped this information into a file in /run.
+	// Read from /run/systemd/container since it is better than accessing /proc/1/environ,
+	// which needs CAP_SYS_PTRACE
+	f := readFile("/run/systemd/container")
+	if len(f) > 0 {
+		for _, runtime := range runtimes {
+			if f == runtime {
+				return runtime, nil
+			}
+		}
+	}
+
+	return "not-found", ErrContainerRuntimeNotFound
+}
+
+// HasPIDNamespace determines if the container is using a PID namespace or the host PID namespace.
+// Since /proc/1/sched shows the host's PID for what we see as PID 1, if the PID shown
+// there is not 1, we know we are in a PID namespace. and hence a container.
+func HasPIDNamespace() bool {
+	f := readFile("/proc/1/sched")
+	if len(f) > 0 {
+		if !strings.Contains(f, " (1") {
+			return true
+		}
+	}
+
+	return false
+}
+
+// AppArmorProfile determines the apparmor profile for a container.
+func AppArmorProfile() string {
+	f := readFile("/proc/self/attr/current")
+	if f == "" {
+		return "none"
+	}
+	return f
+}
+
+// UserNamespace determines if the container is running in a UserNamespace and returns the mappings if so.
+func UserNamespace() (bool, int64, int64, int64) {
+	f := readFile("/proc/self/uid_map")
+	if len(f) < 0 {
+		// user namespace is uninitialized
+		return true, -1, -1, -1
+	}
+
+	parts := strings.Split(f, " ")
+	parts = deleteEmpty(parts)
+	if len(parts) != 3 {
+		return false, 0, 0, 0
+	}
+	nsu, hu, r := parts[0], parts[1], parts[2]
+	uidInNs, err := strconv.ParseInt(nsu, 10, 0)
+	if err != nil {
+		return false, 0, 0, 0
+	}
+	uidInHost, err := strconv.ParseInt(hu, 10, 0)
+	if err != nil {
+		return false, 0, 0, 0
+	}
+	uidRange, err := strconv.ParseInt(r, 10, 0)
+	if err != nil {
+		return false, 0, 0, 0
+	}
+
+	if uidInNs == 0 && uidInHost == 0 && uidRange == uint32Max {
+		return false, 0, 0, 0
+	}
+
+	return true, uidInNs, uidInHost, uidRange
+}
+
+func fileExists(file string) bool {
+	if _, err := os.Stat(file); !os.IsNotExist(err) {
+		return true
+	}
+	return false
+}
+
+func readFile(file string) string {
+	if !fileExists(file) {
+		return ""
+	}
+
+	b, err := ioutil.ReadFile(file)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(b))
+}
+
+func deleteEmpty(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if strings.TrimSpace(str) != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
