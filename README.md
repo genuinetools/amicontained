@@ -9,7 +9,7 @@ well as features available.
 
 #### Binaries
 
-- **linux** [386](https://github.com/jessfraz/amicontained/releases/download/v0.0.0/amicontained-linux-386) / [amd64](https://github.com/jessfraz/amicontained/releases/download/v0.0.0/amicontained-linux-amd64) / [arm](https://github.com/jessfraz/amicontained/releases/download/v0.0.0/amicontained-linux-arm) / [arm64](https://github.com/jessfraz/amicontained/releases/download/v0.0.0/amicontained-linux-arm64)
+- **linux** [386](https://github.com/jessfraz/amicontained/releases/download/v0.0.1/amicontained-linux-386) / [amd64](https://github.com/jessfraz/amicontained/releases/download/v0.0.1/amicontained-linux-amd64) / [arm](https://github.com/jessfraz/amicontained/releases/download/v0.0.1/amicontained-linux-arm) / [arm64](https://github.com/jessfraz/amicontained/releases/download/v0.0.1/amicontained-linux-arm64)
 
 #### Via Go
 
