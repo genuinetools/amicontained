@@ -85,7 +85,7 @@ func DetectRuntime() (string, error) {
 func HasPIDNamespace() bool {
 	f := readFile("/proc/1/sched")
 	if len(f) > 0 {
-		if !strings.Contains(f, " (1") {
+		if !strings.Contains(f, " (1,") {
 			return true
 		}
 	}
