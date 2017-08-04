@@ -53,7 +53,7 @@ func DetectRuntime() (string, error) {
 	}
 
 	// If we are PID 1 we can check the container environment variable.
-	if os.Getpid() == 0 {
+	if os.Getpid() == 1 {
 		ctrenv := os.Getenv("container")
 		if ctrenv != "" {
 			for _, runtime := range runtimes {
