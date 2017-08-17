@@ -117,6 +117,13 @@ func main() {
 		logrus.Debugf("chroot check error: %v", err)
 	}
 	fmt.Printf("Chroot/PivotRoot: %t\n", chroot)
+
+	// Seccomp
+	seccompMode := container.SeccompEnforcingMode()
+	if seccompMode == "undefined" {
+		logrus.Debugf("unable to check seccomp mode")
+	}
+	fmt.Printf("Seccomp: %s\n", seccompMode)
 }
 
 func usageAndExit(message string, exitCode int) {

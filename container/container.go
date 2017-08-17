@@ -2,6 +2,7 @@
 package container
 
 import (
+	"bufio"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"syscall"
 
 	"github.com/syndtr/gocapability/capability"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -229,4 +231,66 @@ func deleteEmpty(s []string) []string {
 		}
 	}
 	return r
+}
+
+func SeccompEnforcingMode() string {
+
+	// Try to read from /proc/self/status for kernels > 3.8
+	s, err := parseStatusFile()
+	if err != nil {
+		// Check if Seccomp is supported, via CONFIG_SECCOMP.
+		if err := unix.Prctl(unix.PR_GET_SECCOMP, 0, 0, 0, 0); err != unix.EINVAL {
+			// Make sure the kernel has CONFIG_SECCOMP_FILTER.
+			if err := unix.Prctl(unix.PR_SET_SECCOMP, unix.SECCOMP_MODE_FILTER, 0, 0, 0); err != unix.EINVAL {
+				return "strict"
+			}
+		}
+		return "disabled"
+	}
+
+	seccomp_modes := map[string]string{
+		"0": "disabled",
+		"1": "strict",
+		"2": "filtering",
+	}
+
+	seccompMode, ok := s["Seccomp"]
+	if !ok {
+		return "undefined"
+	}
+
+	t, ok := seccomp_modes[strings.TrimSpace(seccompMode)]
+	if !ok {
+		return "undefined"
+	}
+
+	return t
+}
+
+func parseStatusFile() (map[string]string, error) {
+
+	f, err := os.Open("/proc/self/status")
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	status := make(map[string]string)
+
+	for s.Scan() {
+		text := s.Text()
+		parts := strings.Split(text, ":")
+
+		if len(parts) <= 1 {
+			continue
+		}
+
+		status[parts[0]] = parts[1]
+	}
+	if err := s.Err(); err != nil {
+		return nil, err
+	}
+
+	return status, nil
 }
