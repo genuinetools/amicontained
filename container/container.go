@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/syndtr/gocapability/capability"
+	"golang.org/x/sys/unix"
 )
 
 const (
@@ -202,6 +203,49 @@ func Chroot() (bool, error) {
 	}
 
 	return a.Ino == b.Ino && a.Dev == b.Dev, nil
+}
+
+// SeccompEnforcingMode returns the seccomp enforcing level (disabled, filtering, strict)
+func SeccompEnforcingMode() (string, error) {
+
+	// Read from /proc/self/status Linux 3.8+
+	s := readFile("/proc/self/status")
+
+	// Pre linux 3.8
+	if !strings.Contains(s, "Seccomp") {
+		// Check if Seccomp is supported, via CONFIG_SECCOMP.
+		if err := unix.Prctl(unix.PR_GET_SECCOMP, 0, 0, 0, 0); err != unix.EINVAL {
+			// Make sure the kernel has CONFIG_SECCOMP_FILTER.
+			if err := unix.Prctl(unix.PR_SET_SECCOMP, unix.SECCOMP_MODE_FILTER, 0, 0, 0); err != unix.EINVAL {
+				return "strict", nil
+			}
+		}
+		return "disabled", nil
+	}
+
+	// Split status file string by line
+	statusMappings := strings.Split(s, "\n")
+	statusMappings = deleteEmpty(statusMappings)
+
+	mode := "-1"
+	for _, line := range statusMappings {
+		if strings.Contains(line, "Seccomp:") {
+			mode = string(line[len(line)-1])
+		}
+	}
+
+	seccompModes := map[string]string{
+		"0": "disabled",
+		"1": "strict",
+		"2": "filtering",
+	}
+
+	seccompMode, ok := seccompModes[mode]
+	if !ok {
+		return "", errors.New("could not retrieve seccomp filtering status")
+	}
+
+	return seccompMode, nil
 }
 
 func fileExists(file string) bool {
