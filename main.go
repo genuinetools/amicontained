@@ -119,9 +119,9 @@ func main() {
 	fmt.Printf("Chroot/PivotRoot: %t\n", chroot)
 
 	// Seccomp
-	seccompMode := container.SeccompEnforcingMode()
-	if seccompMode == "undefined" {
-		logrus.Debugf("unable to check seccomp mode")
+	seccompMode, err := container.SeccompEnforcingMode()
+	if err != nil {
+		logrus.Debugf("error: %v", err)
 	}
 	fmt.Printf("Seccomp: %s\n", seccompMode)
 }
