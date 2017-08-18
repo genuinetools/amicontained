@@ -232,13 +232,13 @@ func SeccompEnforcingMode() (string, error) {
 		}
 	}
 
-	seccomp_modes := map[string]string{
+	seccompModes := map[string]string{
 		"0": "disabled",
 		"1": "strict",
 		"2": "filtering",
 	}
 
-	seccompMode, ok := seccomp_modes[mode]
+	seccompMode, ok := seccompModes[mode]
 	if !ok {
 		return "", errors.New("could not retrieve seccomp filtering status")
 	}
