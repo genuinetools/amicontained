@@ -25,6 +25,8 @@ const (
 	RuntimeLXCLibvirt = "lxc-libvirt"
 	// RuntimeOpenVZ is the openvz runtime.
 	RuntimeOpenVZ = "openvz"
+	// RuntimeKubernetes is the kube runtime.
+	RuntimeKubernetes = "kube"
 
 	uint32Max = 4294967295
 )
@@ -33,7 +35,7 @@ var (
 	// ErrContainerRuntimeNotFound describes when a container runtime could not be found.
 	ErrContainerRuntimeNotFound = errors.New("container runtime could not be found")
 
-	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ}
+	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ, RuntimeKubernetes}
 )
 
 // DetectRuntime returns the container runtime the process is running in.
