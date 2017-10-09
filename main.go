@@ -49,7 +49,7 @@ func init() {
 	}
 
 	if vrsn {
-		fmt.Printf("amicontained version %s, build %s", version.VERSION, version.GITCOMMIT)
+		fmt.Printf("amicontained version %s, build %s\n", version.VERSION, version.GITCOMMIT)
 		os.Exit(0)
 	}
 
@@ -65,7 +65,7 @@ func init() {
 	}
 
 	if arg == "version" {
-		fmt.Printf("amicontained version %s, build %s", version.VERSION, version.GITCOMMIT)
+		fmt.Printf("amicontained version %s, build %s\n", version.VERSION, version.GITCOMMIT)
 		os.Exit(0)
 	}
 }
