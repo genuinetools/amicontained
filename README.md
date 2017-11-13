@@ -20,7 +20,7 @@ well as features available.
 
 #### Binaries
 
-- **linux** [386](https://github.com/jessfraz/amicontained/releases/download/v0.0.10/amicontained-linux-386) / [amd64](https://github.com/jessfraz/amicontained/releases/download/v0.0.10/amicontained-linux-amd64) / [arm](https://github.com/jessfraz/amicontained/releases/download/v0.0.10/amicontained-linux-arm) / [arm64](https://github.com/jessfraz/amicontained/releases/download/v0.0.10/amicontained-linux-arm64)
+- **linux** [386](https://github.com/jessfraz/amicontained/releases/download/v0.0.11/amicontained-linux-386) / [amd64](https://github.com/jessfraz/amicontained/releases/download/v0.0.11/amicontained-linux-amd64) / [arm](https://github.com/jessfraz/amicontained/releases/download/v0.0.11/amicontained-linux-arm) / [arm64](https://github.com/jessfraz/amicontained/releases/download/v0.0.11/amicontained-linux-arm64)
 
 #### Via Go
 
@@ -38,7 +38,7 @@ $ amicontained -h
 | (_| | | | | | | | (_| (_) | | | | || (_| | | | | |  __/ (_| |
  \__,_|_| |_| |_|_|\___\___/|_| |_|\__\__,_|_|_| |_|\___|\__,_|
  Container introspection tool.
- Version: v0.0.10
+ Version: v0.0.11
 
   -d	run in debug mode
   -v	print version and exit (shorthand)
