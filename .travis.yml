@@ -40,5 +40,5 @@
       - cross/amicontained-linux-amd64
     skip_cleanup: true
     on:
-      go: 1.9.x
+      go: tip
       tags: true
