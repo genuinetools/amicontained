@@ -207,7 +207,6 @@ func Chroot() (bool, error) {
 
 // SeccompEnforcingMode returns the seccomp enforcing level (disabled, filtering, strict)
 func SeccompEnforcingMode() (string, error) {
-
 	// Read from /proc/self/status Linux 3.8+
 	s := readFile("/proc/self/status")
 
