@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM golang:alpine as builder
 MAINTAINER Jessica Frazelle <jess@linux.com>
 
 ENV PATH /go/bin:/usr/local/go/bin:$PATH
@@ -11,16 +11,22 @@ COPY . /go/src/github.com/jessfraz/amicontained
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
-		go \
 		git \
 		gcc \
 		libc-dev \
 		libgcc \
+		make \
 	&& cd /go/src/github.com/jessfraz/amicontained \
-	&& go build -o /usr/bin/amicontained . \
+	&& make static \
+	&& mv amicontained /usr/bin/amicontained \
 	&& apk del .build-deps \
 	&& rm -rf /go \
 	&& echo "Build complete."
 
+FROM scratch
+
+COPY --from=builder /usr/bin/amicontained /usr/bin/amicontained
+COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs
 
 ENTRYPOINT [ "amicontained" ]
+CMD [ "--help" ]
