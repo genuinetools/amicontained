@@ -53,31 +53,34 @@ $ amicontained -h
 ```console
 $ docker run --rm -it r.j3ss.co/amicontained
 Container Runtime: docker
-Host PID Namespace: false
-AppArmor Profile: docker-default (enforce)
-User Namespace: true
+Has Namespaces:
+        pid: true
+        user: true
 User Namespace Mappings:
 	Container -> 0
 	Host -> 886432
 	Range -> 65536
+AppArmor Profile: docker-default (enforce)
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
 Chroot/PivotRoot: true
 
 $ docker run --rm -it --pid host r.j3ss.co/amicontained
 Container Runtime: docker
-Host PID Namespace: true
+Has Namespaces:
+        pid: false
+        user: false
 AppArmor Profile: docker-default (enforce)
-User Namespace: false
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
 Chroot/PivotRoot: true
 
 $ docker run --rm -it --security-opt "apparmor=unconfined" r.j3ss.co/amicontained
 Container Runtime: docker
-Host PID Namespace: false
+Has Namespaces:
+        pid: true
+        user: false
 AppArmor Profile: unconfined
-User Namespace: false
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
 Chroot/PivotRoot: true
@@ -89,22 +92,24 @@ Chroot/PivotRoot: true
 $ lxc-attach -n xenial
 root@xenial:/# amicontained
 Container Runtime: lxc
-Host PID Namespace: false
-AppArmor Profile: none
-User Namespace: true
+Has Namespaces:
+        pid: true
+        user: true
 User Namespace Mappings:
 	Container -> 0	Host -> 100000	Range -> 65536
+AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
 Chroot/PivotRoot: true
 
 $ lxc-execute -n xenial -- /bin/amicontained
 Container Runtime: lxc
-Host PID Namespace: false
-AppArmor Profile: none
-User Namespace: true
+Has Namespaces:
+        pid: true
+        user: true
 User Namespace Mappings:
 	Container -> 0	Host -> 100000	Range -> 65536
+AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
 Chroot/PivotRoot: true
@@ -118,9 +123,10 @@ Spawning container amicontained on /home/jessfraz/nspawn-amicontained.
 Press ^] three times within 1s to kill container.
 Timezone UTC does not exist in container, not updating container timezone.
 Container Runtime: systemd-nspawn
-Host PID Namespace: false
+Has Namespaces:
+        pid: true
+        user: false
 AppArmor Profile: none
-User Namespace: false
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_raw ipc_owner sys_chroot sys_ptrace sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap
 Chroot/PivotRoot: true
@@ -157,13 +163,14 @@ $ sudo rkt --insecure-options=image run  --private-users=true --no-overlay docke
 $ sudo unshare --user -r
 root@coreos:/home/jessie/.go/src/github.com/jessfraz/amicontained# ./amicontained
 Container Runtime: not-found
-Host PID Namespace: true
-AppArmor Profile: unconfined
-User Namespace: true
+Has Namespaces:
+        pid: false
+        user: true
 User Namespace Mappings:
 	Container -> 0
 	Host -> 0
 	Range -> 1
+AppArmor Profile: unconfined
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_module sys_rawio sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_time sys_tty_config mknod lease audit_write audit_control setfcap mac_override mac_admin syslog wake_alarm block_suspend audit_read
 Chroot/PivotRoot: false

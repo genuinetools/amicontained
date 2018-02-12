@@ -79,23 +79,31 @@ func main() {
 	}
 	fmt.Printf("Container Runtime: %s\n", runtime)
 
-	// PID Namespace
-	pidns := container.HasPIDNamespace()
-	fmt.Printf("Host PID Namespace: %t\n", !pidns)
-
-	// AppArmor Profile
-	aaprof := container.AppArmorProfile()
-	fmt.Printf("AppArmor Profile: %s\n", aaprof)
+	// Namespaces
+	namespaces := []string{"pid"}
+	fmt.Println("Has Namespaces:")
+	for _, namespace := range namespaces {
+		ns, err := container.HasNamespace(namespace)
+		if err != nil {
+			fmt.Printf("\t%s: error -> %v\n", namespace, err)
+			continue
+		}
+		fmt.Printf("\t%s: %t\n", namespace, ns)
+	}
 
 	// User Namespaces
 	userNS, userMappings := container.UserNamespace()
-	fmt.Printf("User Namespace: %t\n", userNS)
+	fmt.Printf("\tuser: %t\n", userNS)
 	if len(userMappings) > 0 {
 		fmt.Println("User Namespace Mappings:")
 		for _, userMapping := range userMappings {
 			fmt.Printf("\tContainer -> %d\tHost -> %d\tRange -> %d\n", userMapping.ContainerID, userMapping.HostID, userMapping.Range)
 		}
 	}
+
+	// AppArmor Profile
+	aaprof := container.AppArmorProfile()
+	fmt.Printf("AppArmor Profile: %s\n", aaprof)
 
 	// Capabilities
 	caps, err := container.Capabilities()

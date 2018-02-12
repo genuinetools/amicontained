@@ -3,6 +3,7 @@ package container
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -80,18 +81,25 @@ func DetectRuntime() (string, error) {
 	return "not-found", ErrContainerRuntimeNotFound
 }
 
-// HasPIDNamespace determines if the container is using a PID namespace or the host PID namespace.
-// Since /proc/1/sched shows the host's PID for what we see as PID 1, if the PID shown
-// there is not 1, we know we are in a PID namespace.
-func HasPIDNamespace() bool {
-	f := readFile("/proc/1/sched")
-	if len(f) > 0 {
-		if !strings.Contains(f, " (1,") {
-			return true
-		}
+// HasNamespace determines if the container is using a particular namespace or the
+// host namespace.
+// The device number of an unnamespaced /proc/1/ns/{ns} is 4 and anything else is
+// higher.
+func HasNamespace(ns string) (bool, error) {
+	file := fmt.Sprintf("/proc/1/ns/%s", ns)
+
+	// Use Lstat to not follow the symlink.
+	var info syscall.Stat_t
+	if err := syscall.Lstat(file, &info); err != nil {
+		return false, &os.PathError{Op: "lstat", Path: file, Err: err}
 	}
 
-	return false
+	// Get the device number. If it is higher than 4 it is in a namespace.
+	if info.Dev > 4 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // AppArmorProfile determines the apparmor profile for a container.
