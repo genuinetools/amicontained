@@ -202,11 +202,11 @@ func Capabilities() (map[string][]string, error) {
 func Chroot() (bool, error) {
 	var a, b syscall.Stat_t
 
-	if err := syscall.Stat("/proc/1/root", &a); err != nil {
+	if err := syscall.Lstat("/proc/1/root", &a); err != nil {
 		return false, err
 	}
 
-	if err := syscall.Stat("/", &b); err != nil {
+	if err := syscall.Lstat("/", &b); err != nil {
 		return false, err
 	}
 

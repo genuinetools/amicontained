@@ -124,7 +124,7 @@ func main() {
 	if err != nil {
 		logrus.Debugf("chroot check error: %v", err)
 	}
-	fmt.Printf("Chroot/PivotRoot: %t\n", chroot)
+	fmt.Printf("Chroot (not pivot_root): %t\n", chroot)
 
 	// Seccomp
 	seccompMode, err := container.SeccompEnforcingMode()
