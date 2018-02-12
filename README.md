@@ -63,7 +63,7 @@ User Namespace Mappings:
 AppArmor Profile: docker-default (enforce)
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 
 $ docker run --rm -it --pid host r.j3ss.co/amicontained
 Container Runtime: docker
@@ -73,7 +73,7 @@ Has Namespaces:
 AppArmor Profile: docker-default (enforce)
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 
 $ docker run --rm -it --security-opt "apparmor=unconfined" r.j3ss.co/amicontained
 Container Runtime: docker
@@ -83,7 +83,7 @@ Has Namespaces:
 AppArmor Profile: unconfined
 Capabilities:
 	BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 ```
 
 #### lxc
@@ -100,7 +100,7 @@ User Namespace Mappings:
 AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 
 $ lxc-execute -n xenial -- /bin/amicontained
 Container Runtime: lxc
@@ -112,7 +112,7 @@ User Namespace Mappings:
 AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 ```
 
 #### systemd-nspawn
@@ -129,7 +129,7 @@ Has Namespaces:
 AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_raw ipc_owner sys_chroot sys_ptrace sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap
-Chroot (not pivot_root): true
+Chroot (not pivot_root): false
 Container amicontained exited successfully.
 ```
 
