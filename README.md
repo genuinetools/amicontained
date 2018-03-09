@@ -25,7 +25,7 @@ well as features available.
 #### Via Go
 
 ```bash
-$ go get github.com/jessfraz/amicontained
+$ go get github.com/genuinetools/amicontained
 ```
 
 ## Usage
