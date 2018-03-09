@@ -15,20 +15,14 @@ import (
 )
 
 const (
-	// RuntimeDocker is the docker runtime.
-	RuntimeDocker = "docker"
-	// RuntimeRkt is the rkt runtime.
-	RuntimeRkt = "rkt"
-	// RuntimeNspawn is the systemd-nspawn runtime.
-	RuntimeNspawn = "systemd-nspawn"
-	// RuntimeLXC is the lxc runtime.
-	RuntimeLXC = "lxc"
-	// RuntimeLXCLibvirt is the lxc-libvirt runtime.
+	RuntimeDocker     = "docker"
+	RuntimeRkt        = "rkt"
+	RuntimeNspawn     = "systemd-nspawn"
+	RuntimeLXC        = "lxc"
 	RuntimeLXCLibvirt = "lxc-libvirt"
-	// RuntimeOpenVZ is the openvz runtime.
-	RuntimeOpenVZ = "openvz"
-	// RuntimeKubernetes is the kube runtime.
+	RuntimeOpenVZ     = "openvz"
 	RuntimeKubernetes = "kube"
+	RuntimeGarden     = "garden"
 
 	uint32Max = 4294967295
 )
@@ -37,7 +31,7 @@ var (
 	// ErrContainerRuntimeNotFound describes when a container runtime could not be found.
 	ErrContainerRuntimeNotFound = errors.New("container runtime could not be found")
 
-	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ, RuntimeKubernetes}
+	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ, RuntimeKubernetes, RuntimeGarden}
 )
 
 // DetectRuntime returns the container runtime the process is running in.

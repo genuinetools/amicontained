@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/jessfraz/amicontained/container"
-	"github.com/jessfraz/amicontained/version"
+	"github.com/genuinetools/amicontained/container"
+	"github.com/genuinetools/amicontained/version"
 	"github.com/sirupsen/logrus"
 )
 
