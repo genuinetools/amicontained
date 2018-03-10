@@ -3,7 +3,7 @@ PREFIX?=$(shell pwd)
 
 # Setup name variables for the package/tool
 NAME := amicontained
-PKG := github.com/jessfraz/$(NAME)
+PKG := github.com/genuinetools/$(NAME)
 
 # Set any default go build tags
 BUILDTAGS :=
