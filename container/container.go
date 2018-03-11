@@ -15,14 +15,22 @@ import (
 )
 
 const (
-	RuntimeDocker     = "docker"
-	RuntimeRkt        = "rkt"
-	RuntimeNspawn     = "systemd-nspawn"
-	RuntimeLXC        = "lxc"
+	// RuntimeDocker is the string for the docker runtime.
+	RuntimeDocker = "docker"
+	// RuntimeRkt is the string for the rkt runtime.
+	RuntimeRkt = "rkt"
+	// RuntimeNspawn is the string for the systemd-nspawn runtime.
+	RuntimeNspawn = "systemd-nspawn"
+	// RuntimeLXC is the string for the lxc runtime.
+	RuntimeLXC = "lxc"
+	// RuntimeLXCLibvirt is the string for the lxc-libvirt runtime.
 	RuntimeLXCLibvirt = "lxc-libvirt"
-	RuntimeOpenVZ     = "openvz"
+	// RuntimeOpenVZ is the string for the openvz runtime.
+	RuntimeOpenVZ = "openvz"
+	// RuntimeKubernetes is the string for the kubernetes runtime.
 	RuntimeKubernetes = "kube"
-	RuntimeGarden     = "garden"
+	// RuntimeGarden is the string for the garden runtime.
+	RuntimeGarden = "garden"
 
 	uint32Max = 4294967295
 )
