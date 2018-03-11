@@ -6,9 +6,6 @@
   go:
     - stable
     - tip
-  env:
-    global:
-      - GO15VENDOREXPERIMENT=1
   matrix:
     allow_failures:
       - go: tip

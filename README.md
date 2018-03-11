@@ -1,6 +1,6 @@
 # amicontained
 
-[![Travis CI](https://travis-ci.org/jessfraz/amicontained.svg?branch=master)](https://travis-ci.org/jessfraz/amicontained)
+[![Travis CI](https://travis-ci.org/genuinetools/amicontained.svg?branch=master)](https://travis-ci.org/genuinetools/amicontained)
 
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
@@ -20,7 +20,7 @@ well as features available.
 
 #### Binaries
 
-- **linux** [386](https://github.com/jessfraz/amicontained/releases/download/v0.3.0/amicontained-linux-386) / [amd64](https://github.com/jessfraz/amicontained/releases/download/v0.3.0/amicontained-linux-amd64) / [arm](https://github.com/jessfraz/amicontained/releases/download/v0.3.0/amicontained-linux-arm) / [arm64](https://github.com/jessfraz/amicontained/releases/download/v0.3.0/amicontained-linux-arm64)
+- **linux** [386](https://github.com/genuinetools/amicontained/releases/download/v0.3.0/amicontained-linux-386) / [amd64](https://github.com/genuinetools/amicontained/releases/download/v0.3.0/amicontained-linux-amd64) / [arm](https://github.com/genuinetools/amicontained/releases/download/v0.3.0/amicontained-linux-arm) / [arm64](https://github.com/genuinetools/amicontained/releases/download/v0.3.0/amicontained-linux-arm64)
 
 #### Via Go
 
@@ -161,7 +161,7 @@ $ sudo rkt --insecure-options=image run  --private-users=true --no-overlay docke
 
 ```console
 $ sudo unshare --user -r
-root@coreos:/home/jessie/.go/src/github.com/jessfraz/amicontained# ./amicontained
+root@coreos:/home/jessie/.go/src/github.com/genuinetools/amicontained# ./amicontained
 Container Runtime: not-found
 Has Namespaces:
         pid: false

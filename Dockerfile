@@ -7,7 +7,7 @@ ENV GOPATH /go
 RUN	apk add --no-cache \
 	ca-certificates
 
-COPY . /go/src/github.com/jessfraz/amicontained
+COPY . /go/src/github.com/genuinetools/amicontained
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
@@ -16,7 +16,7 @@ RUN set -x \
 		libc-dev \
 		libgcc \
 		make \
-	&& cd /go/src/github.com/jessfraz/amicontained \
+	&& cd /go/src/github.com/genuinetools/amicontained \
 	&& make static \
 	&& mv amicontained /usr/bin/amicontained \
 	&& apk del .build-deps \
