@@ -119,7 +119,7 @@ Chroot (not pivot_root): false
 
 ```console
 $ sudo systemd-nspawn --machine amicontained --directory nspawn-amicontained /usr/bin/amicontained
-Spawning container amicontained on /home/jessfraz/nspawn-amicontained.
+Spawning container amicontained on /home/genuinetools/nspawn-amicontained.
 Press ^] three times within 1s to kill container.
 Timezone UTC does not exist in container, not updating container timezone.
 Container Runtime: systemd-nspawn
