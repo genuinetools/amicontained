@@ -1,6 +1,8 @@
 # amicontained
 
-[![Travis CI](https://travis-ci.org/genuinetools/amicontained.svg?branch=master)](https://travis-ci.org/genuinetools/amicontained)
+[![Travis CI](https://img.shields.io/travis/genuinetools/amicontained.svg?style=for-the-badge)](https://travis-ci.org/genuinetools/amicontained)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge)](https://godoc.org/github.com/genuinetools/amicontained)
+[![Github All Releases](https://img.shields.io/github/downloads/genuinetools/amicontained/total.svg?style=for-the-badge)](https://github.com/genuinetools/amicontained/releases)
 
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
@@ -20,6 +22,8 @@ well as features available.
 
 #### Binaries
 
+For installation instructions from binaries please visit the [Releases Page](https://github.com/genuinetools/amicontained/releases).
+
 - **linux** [386](https://github.com/genuinetools/amicontained/releases/download/v0.4.1/amicontained-linux-386) / [amd64](https://github.com/genuinetools/amicontained/releases/download/v0.4.1/amicontained-linux-amd64) / [arm](https://github.com/genuinetools/amicontained/releases/download/v0.4.1/amicontained-linux-arm) / [arm64](https://github.com/genuinetools/amicontained/releases/download/v0.4.1/amicontained-linux-arm64)
 
 #### Via Go
@@ -32,18 +36,15 @@ $ go get github.com/genuinetools/amicontained
 
 ```console
 $ amicontained -h
-                 _                 _        _                _
-  __ _ _ __ ___ (_) ___ ___  _ __ | |_ __ _(_)_ __   ___  __| |
- / _` | '_ ` _ \| |/ __/ _ \| '_ \| __/ _` | | '_ \ / _ \/ _` |
-| (_| | | | | | | | (_| (_) | | | | || (_| | | | | |  __/ (_| |
- \__,_|_| |_| |_|_|\___\___/|_| |_|\__\__,_|_|_| |_|\___|\__,_|
- Container introspection tool.
- Version: v0.4.1
+Usage: amicontained <command>
 
-  -d	run in debug mode
-  -v	print version and exit (shorthand)
-  -version
-    	print version and exit
+Flags:
+
+  -d  enable debug logging (default: false)
+
+Commands:
+
+  version  Show the version information.
 ```
 
 ## Examples

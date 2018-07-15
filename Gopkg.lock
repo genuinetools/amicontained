@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:3d2aab11abd8ae794b84ad3bfa1eef1cd00f6f425320d6d0dba757b374d9982f"
+  name = "github.com/genuinetools/pkg"
+  packages = ["cli"]
+  pruneopts = ""
+  revision = "23ca2f91b68fad6f9ff7adffb8424aacf5f47476"
+
+[[projects]]
   digest = "1:f2cc92b78b2f3b76ab0f9daddddd28627bcfcc6cacf119029aa3850082d95079"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -27,19 +35,20 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:880f5ae3ffdd8741fe179f0f70b46df57fcdd746f3a0e9d0e189bb6a241535e4"
+  digest = "1:a8944db88149e7ecbea4b760c625b9ccf455fceae21387bc8890c3589d28b623"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = ""
-  revision = "1b2967e3c290b7c545b3db0deeda16e9be4f98a2"
+  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/genuinetools/pkg/cli",
     "github.com/sirupsen/logrus",
     "github.com/syndtr/gocapability/capability",
     "golang.org/x/sys/unix",

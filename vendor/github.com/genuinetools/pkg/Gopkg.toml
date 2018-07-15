@@ -23,7 +23,3 @@
   non-go = true
   go-tests = true
   unused-packages = true
-
-[[override]]
-  name = "github.com/Sirupsen/logrus"
-  source = "github.com/sirupsen/logrus"
