@@ -36,6 +36,8 @@ $ go get github.com/genuinetools/amicontained
 
 ```console
 $ amicontained -h
+amicontained -  A container introspection tool.
+
 Usage: amicontained <command>
 
 Flags:
