@@ -86,7 +86,8 @@ func (p *Program) Run() {
 	// Append the version command to the list of commands by default.
 	p.Commands = append(p.Commands, &versionCommand{})
 
-	if len(os.Args) <= 1 || len(os.Args) == 2 &&
+	// TODO(jessfraz): Find a better way to tell that they passed -h through as a flag.
+	if len(os.Args) > 1 &&
 		(strings.Contains(strings.ToLower(os.Args[1]), "help") ||
 			strings.ToLower(os.Args[1]) == "-h") {
 		p.usage(ctx)
@@ -98,15 +99,36 @@ func (p *Program) Run() {
 		p.Action = p.usage
 	}
 
-	if len(os.Args) <= 1 {
-		// Run the main action.
-		if err := p.Action(ctx); err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
+	// If we are not running commands then automatically run the main action of
+	// the program instead.
+	if len(p.Commands) <= 1 {
+		// Set the default flagset if our flagset is undefined.
+		if p.FlagSet == nil {
+			p.FlagSet = defaultFlagSet(p.Name)
+		}
+
+		// Override the usage text to something nicer.
+		p.FlagSet.Usage = func() {
+			p.usage(ctx)
+		}
+
+		// Parse the flags the user gave us.
+		if err := p.FlagSet.Parse(os.Args); err != nil {
+			p.usage(ctx)
 			os.Exit(1)
 		}
 
-		// Done.
-		return
+		// Run the main action _if_ we are not in the loop for the version command
+		// that is added by default.
+		if p.FlagSet.NArg() < 1 {
+			if err := p.Action(ctx); err != nil {
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
+			}
+
+			// Done.
+			return
+		}
 	}
 
 	// Iterate over the commands in the program.
@@ -168,6 +190,7 @@ func (p *Program) Run() {
 }
 
 func (p *Program) usage(ctx context.Context) error {
+	fmt.Fprintf(os.Stderr, "%s -  %s.\n\n", p.Name, strings.TrimSuffix(strings.TrimSpace(p.Description), "."))
 	fmt.Fprintf(os.Stderr, "Usage: %s <command>\n", p.Name)
 	fmt.Fprintln(os.Stderr)
 
