@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f64f4f1a0cfa59756e9dcd862a2a9a19b55a399e0b2a94adc4d88cce5ccdd81a"
+  digest = "1:7cf0bc606bb5b12b2c431bd891679060d927083330118687898278bcf963ae8d"
   name = "github.com/genuinetools/pkg"
   packages = ["cli"]
   pruneopts = "NUT"
-  revision = "48dd72acda92569973e805d5a10bbdb49dd35c2a"
+  revision = "cd7da1bd30dc725ffb0bababc615633f23654e0c"
 
 [[projects]]
   digest = "1:6989062eb7ccf25cf38bf4fe3dba097ee209f896cda42cefdca3927047bef7b6"

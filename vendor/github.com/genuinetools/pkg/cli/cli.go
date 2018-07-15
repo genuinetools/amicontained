@@ -113,14 +113,21 @@ func (p *Program) Run() {
 		}
 
 		// Parse the flags the user gave us.
-		if err := p.FlagSet.Parse(os.Args); err != nil {
+		if err := p.FlagSet.Parse(os.Args[1:]); err != nil {
 			p.usage(ctx)
 			os.Exit(1)
 		}
 
 		// Run the main action _if_ we are not in the loop for the version command
 		// that is added by default.
-		if p.FlagSet.NArg() < 1 {
+		if p.FlagSet.NArg() < 1 || p.FlagSet.Arg(0) != "version" {
+			if p.Before != nil {
+				if err := p.Before(ctx); err != nil {
+					fmt.Fprintf(os.Stderr, "%v\n", err)
+					os.Exit(1)
+				}
+			}
+
 			if err := p.Action(ctx); err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
