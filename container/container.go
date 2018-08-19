@@ -31,6 +31,8 @@ const (
 	RuntimeKubernetes = "kube"
 	// RuntimeGarden is the string for the garden runtime.
 	RuntimeGarden = "garden"
+	// RuntimePodman is the string for the podman runtime.
+	RuntimePodman = "podman"
 
 	uint32Max = 4294967295
 )
@@ -39,7 +41,7 @@ var (
 	// ErrContainerRuntimeNotFound describes when a container runtime could not be found.
 	ErrContainerRuntimeNotFound = errors.New("container runtime could not be found")
 
-	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ, RuntimeKubernetes, RuntimeGarden}
+	runtimes = []string{RuntimeDocker, RuntimeRkt, RuntimeNspawn, RuntimeLXC, RuntimeLXCLibvirt, RuntimeOpenVZ, RuntimeKubernetes, RuntimeGarden, RuntimePodman}
 )
 
 // DetectRuntime returns the container runtime the process is running in.
