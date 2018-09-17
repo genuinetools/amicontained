@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/genuinetools/amicontained/container"
 	"github.com/genuinetools/amicontained/version"
 	"github.com/genuinetools/pkg/cli"
+	"github.com/jessfraz/bpfd/proc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,19 +41,16 @@ func main() {
 	}
 
 	// Set the main program action.
-	p.Action = func(ctx context.Context) error {
+	p.Action = func(ctx context.Context, args []string) error {
 		// Container Runtime
-		runtime, err := container.DetectRuntime()
-		if err != nil && err != container.ErrContainerRuntimeNotFound {
-			return err
-		}
+		runtime := proc.GetContainerRuntime(0, 0)
 		fmt.Printf("Container Runtime: %s\n", runtime)
 
 		// Namespaces
 		namespaces := []string{"pid"}
 		fmt.Println("Has Namespaces:")
 		for _, namespace := range namespaces {
-			ns, err := container.HasNamespace(namespace)
+			ns, err := proc.HasNamespace(namespace)
 			if err != nil {
 				fmt.Printf("\t%s: error -> %v\n", namespace, err)
 				continue
@@ -62,7 +59,7 @@ func main() {
 		}
 
 		// User Namespaces
-		userNS, userMappings := container.UserNamespace()
+		userNS, userMappings := proc.GetUserNamespaceInfo(0)
 		fmt.Printf("\tuser: %t\n", userNS)
 		if len(userMappings) > 0 {
 			fmt.Println("User Namespace Mappings:")
@@ -72,11 +69,11 @@ func main() {
 		}
 
 		// AppArmor Profile
-		aaprof := container.AppArmorProfile()
+		aaprof := proc.GetAppArmorProfile(0)
 		fmt.Printf("AppArmor Profile: %s\n", aaprof)
 
 		// Capabilities
-		caps, err := container.Capabilities()
+		caps, err := proc.GetCapabilities(0)
 		if err != nil {
 			logrus.Warnf("getting capabilities failed: %v", err)
 		}
@@ -89,18 +86,8 @@ func main() {
 			}
 		}
 
-		// Chroot
-		chroot, err := container.Chroot()
-		if err != nil {
-			logrus.Debugf("chroot check error: %v", err)
-		}
-		fmt.Printf("Chroot (not pivot_root): %t\n", chroot)
-
 		// Seccomp
-		seccompMode, err := container.SeccompEnforcingMode()
-		if err != nil {
-			logrus.Debugf("error: %v", err)
-		}
+		seccompMode := proc.GetSeccompEnforcingMode(0)
 		fmt.Printf("Seccomp: %s\n", seccompMode)
 
 		return nil

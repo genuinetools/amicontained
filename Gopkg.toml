@@ -27,3 +27,7 @@
 [[override]]
   name = "github.com/Sirupsen/logrus"
   source = "github.com/sirupsen/logrus"
+
+[[constraint]]
+  name = "github.com/jessfraz/bpfd"
+  branch = "master"
