@@ -1,0 +1,13 @@
+# github.com/genuinetools/pkg v0.0.0-20180910213200-1c141f661797
+github.com/genuinetools/pkg/cli
+# github.com/jessfraz/bpfd v0.0.0-20180918065159-854869239e70
+github.com/jessfraz/bpfd/proc
+# github.com/sirupsen/logrus v1.0.6
+github.com/sirupsen/logrus
+# github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2
+github.com/syndtr/gocapability/capability
+# golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
+golang.org/x/crypto/ssh/terminal
+# golang.org/x/sys v0.0.0-20180925112736-b09afc3d579e
+golang.org/x/sys/unix
+golang.org/x/sys/windows
