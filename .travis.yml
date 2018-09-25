@@ -18,18 +18,18 @@ jobs:
       deploy:
         provider: releases
         file:
-          - cross/amicontained-linux-amd64.md5
           - cross/amicontained-linux-arm
-          - cross/amicontained-linux-arm64.sha256
-          - cross/amicontained-linux-arm.sha256
-          - cross/amicontained-linux-386.sha256
-          - cross/amicontained-linux-arm64.md5
-          - cross/amicontained-linux-arm64
-          - cross/amicontained-linux-amd64.sha256
-          - cross/amicontained-linux-386.md5
           - cross/amicontained-linux-arm.md5
-          - cross/amicontained-linux-386
+          - cross/amicontained-linux-arm.sha256
+          - cross/amicontained-linux-arm64
+          - cross/amicontained-linux-arm64.md5
+          - cross/amicontained-linux-arm64.sha256
           - cross/amicontained-linux-amd64
+          - cross/amicontained-linux-amd64.md5
+          - cross/amicontained-linux-amd64.sha256
+          - cross/amicontained-linux-386
+          - cross/amicontained-linux-386.md5
+          - cross/amicontained-linux-386.sha256
         skip_cleanup: true
         on:
           tags: true
