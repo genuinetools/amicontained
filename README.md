@@ -24,7 +24,7 @@ well as features available.
 
 For installation instructions from binaries please visit the [Releases Page](https://github.com/genuinetools/amicontained/releases).
 
-- **linux** [386](https://github.com/genuinetools/amicontained/releases/download/v0.4.5/amicontained-linux-386) / [amd64](https://github.com/genuinetools/amicontained/releases/download/v0.4.5/amicontained-linux-amd64) / [arm](https://github.com/genuinetools/amicontained/releases/download/v0.4.5/amicontained-linux-arm) / [arm64](https://github.com/genuinetools/amicontained/releases/download/v0.4.5/amicontained-linux-arm64)
+- **linux** [386](https://github.com/genuinetools/amicontained/releases/download/v0.4.6/amicontained-linux-386) / [amd64](https://github.com/genuinetools/amicontained/releases/download/v0.4.6/amicontained-linux-amd64) / [arm](https://github.com/genuinetools/amicontained/releases/download/v0.4.6/amicontained-linux-arm) / [arm64](https://github.com/genuinetools/amicontained/releases/download/v0.4.6/amicontained-linux-arm64)
 
 #### Via Go
 
