@@ -31,7 +31,6 @@ func main() {
 	// Setup the global flags.
 	p.FlagSet = flag.NewFlagSet("ship", flag.ExitOnError)
 	p.FlagSet.BoolVar(&debug, "d", false, "enable debug logging")
-	p.FlagSet.BoolVar(&seccomplist, "s", false, "print a list of blocked syscalls")
 
 	// Set the before function.
 	p.Before = func(ctx context.Context) error {
@@ -93,9 +92,7 @@ func main() {
 		seccompMode := proc.GetSeccompEnforcingMode(0)
 		fmt.Printf("Seccomp: %s\n", seccompMode)
 
-		if seccomplist {
-			seccompIter()
-		}
+		seccompIter()
 
 		return nil
 	}
@@ -138,12 +135,15 @@ func seccompIter() {
 
 	}
 
-	if debug {
-		fmt.Println("\nAllowed Syscalls: ")
-		fmt.Printf("\t%s\n\n", strings.Join(allowed, " "))
+	if debug && len(allowed) > 0 {
+		fmt.Printf("Allowed Syscalls (%d):\n", len(allowed))
+		fmt.Printf("\t%s\n", strings.Join(allowed, " "))
 	}
-	fmt.Println("Blocked Syscalls: ")
-	fmt.Printf("\t%s\n", strings.Join(blocked, " "))
+
+	if len(blocked) > 0 {
+		fmt.Printf("Blocked Syscalls (%d):\n", len(blocked))
+		fmt.Printf("\t%s\n", strings.Join(blocked, " "))
+	}
 }
 
 func syscallName(e int) string {

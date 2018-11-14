@@ -29,4 +29,3 @@ COPY --from=builder /usr/bin/amicontained /usr/bin/amicontained
 COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs
 
 ENTRYPOINT [ "amicontained" ]
-CMD [ "--help" ]
