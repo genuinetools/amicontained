@@ -7,16 +7,9 @@
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
 
-- [Installation](#installation)
-    + [Binaries](#binaries)
-    + [Via Go](#via-go)
-- [Usage](#usage)
-- [Examples](#examples)
-    + [docker](#docker)
-    + [lxc](#lxc)
-    + [systemd-nspawn](#systemd-nspawn)
-    + [rkt](#rkt)
-    + [unshare](#unshare)
+<!-- toc -->
+
+<!-- tocstop -->
 
 ## Installation
 
