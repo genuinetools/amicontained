@@ -9,6 +9,17 @@ well as features available.
 
 <!-- toc -->
 
+- [Installation](#installation)
+    + [Binaries](#binaries)
+    + [Via Go](#via-go)
+- [Usage](#usage)
+- [Examples](#examples)
+    + [docker](#docker)
+    + [lxc](#lxc)
+    + [systemd-nspawn](#systemd-nspawn)
+    + [rkt](#rkt)
+    + [unshare](#unshare)
+
 <!-- tocstop -->
 
 ## Installation
