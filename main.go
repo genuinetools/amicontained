@@ -135,7 +135,7 @@ func seccompIter() {
 		// check both EPERM and EACCES - LXC returns EACCES and Docker EPERM
 		if err == syscall.EPERM || err == syscall.EACCES {
 			blocked = append(blocked, syscallName(id))
-		} else {
+		} else if err != syscall.EOPNOTSUPP {
 			allowed = append(allowed, syscallName(id))
 		}
 
