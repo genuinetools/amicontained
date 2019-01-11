@@ -15,8 +15,7 @@ import (
 )
 
 var (
-	debug       bool
-	seccomplist bool
+	debug bool
 )
 
 func main() {
