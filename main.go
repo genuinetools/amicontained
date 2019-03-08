@@ -16,11 +16,11 @@ import (
 	"github.com/jessfraz/bpfd/proc"
 	"github.com/sirupsen/logrus"
 	"github.com/tv42/httpunix"
+	"golang.org/x/sys/unix"
 )
 
 var (
-	debug       bool
-	seccomplist bool
+	debug bool
 )
 
 func main() {
@@ -184,20 +184,25 @@ func seccompIter() {
 
 	//fmt.Println("Checking available syscalls...")
 
-	for id := 0; id < 314; id++ {
+	for id := 0; id <= unix.SYS_RSEQ; id++ {
 		// these cause a hang, so just skip
 		// rt_sigreturn, select, pause, pselect6, ppoll
-		if id == syscall.SYS_RT_SIGRETURN || id == syscall.SYS_SELECT || id == syscall.SYS_PAUSE || id == syscall.SYS_PSELECT6 || id == syscall.SYS_PPOLL {
+		if id == unix.SYS_RT_SIGRETURN || id == unix.SYS_SELECT || id == unix.SYS_PAUSE || id == unix.SYS_PSELECT6 || id == unix.SYS_PPOLL {
 			continue
 		}
 		// exit_group and exit -- causes us to exit.. doh!
-		if id == syscall.SYS_EXIT || id == syscall.SYS_EXIT_GROUP {
+		if id == unix.SYS_EXIT || id == unix.SYS_EXIT_GROUP {
 			continue
 		}
 
 		// things currently break horribly if  CLONE, FORK or VFORK are called and the call succeeds
 		// guess it should be straight forward to kill the forks
-		if id == syscall.SYS_CLONE || id == syscall.SYS_FORK || id == syscall.SYS_VFORK {
+		if id == unix.SYS_CLONE || id == unix.SYS_FORK || id == unix.SYS_VFORK {
+			continue
+		}
+
+		// Skip seccomp itself.
+		if id == unix.SYS_SECCOMP {
 			continue
 		}
 
@@ -206,7 +211,7 @@ func seccompIter() {
 		// check both EPERM and EACCES - LXC returns EACCES and Docker EPERM
 		if err == syscall.EPERM || err == syscall.EACCES {
 			blocked = append(blocked, syscallName(id))
-		} else {
+		} else if err != syscall.EOPNOTSUPP {
 			allowed = append(allowed, syscallName(id))
 		}
 
@@ -225,634 +230,676 @@ func seccompIter() {
 
 func syscallName(e int) string {
 	switch e {
-	case syscall.SYS_READ:
+	case unix.SYS_READ:
 		return "READ"
-	case syscall.SYS_WRITE:
+	case unix.SYS_WRITE:
 		return "WRITE"
-	case syscall.SYS_OPEN:
+	case unix.SYS_OPEN:
 		return "OPEN"
-	case syscall.SYS_CLOSE:
+	case unix.SYS_CLOSE:
 		return "CLOSE"
-	case syscall.SYS_STAT:
+	case unix.SYS_STAT:
 		return "STAT"
-	case syscall.SYS_FSTAT:
+	case unix.SYS_FSTAT:
 		return "FSTAT"
-	case syscall.SYS_LSTAT:
+	case unix.SYS_LSTAT:
 		return "LSTAT"
-	case syscall.SYS_POLL:
+	case unix.SYS_POLL:
 		return "POLL"
-	case syscall.SYS_LSEEK:
+	case unix.SYS_LSEEK:
 		return "LSEEK"
-	case syscall.SYS_MMAP:
+	case unix.SYS_MMAP:
 		return "MMAP"
-	case syscall.SYS_MPROTECT:
+	case unix.SYS_MPROTECT:
 		return "MPROTECT"
-	case syscall.SYS_MUNMAP:
+	case unix.SYS_MUNMAP:
 		return "MUNMAP"
-	case syscall.SYS_BRK:
+	case unix.SYS_BRK:
 		return "BRK"
-	case syscall.SYS_RT_SIGACTION:
+	case unix.SYS_RT_SIGACTION:
 		return "RT_SIGACTION"
-	case syscall.SYS_RT_SIGPROCMASK:
+	case unix.SYS_RT_SIGPROCMASK:
 		return "RT_SIGPROCMASK"
-	case syscall.SYS_RT_SIGRETURN:
+	case unix.SYS_RT_SIGRETURN:
 		return "RT_SIGRETURN"
-	case syscall.SYS_IOCTL:
+	case unix.SYS_IOCTL:
 		return "IOCTL"
-	case syscall.SYS_PREAD64:
+	case unix.SYS_PREAD64:
 		return "PREAD64"
-	case syscall.SYS_PWRITE64:
+	case unix.SYS_PWRITE64:
 		return "PWRITE64"
-	case syscall.SYS_READV:
+	case unix.SYS_READV:
 		return "READV"
-	case syscall.SYS_WRITEV:
+	case unix.SYS_WRITEV:
 		return "WRITEV"
-	case syscall.SYS_ACCESS:
+	case unix.SYS_ACCESS:
 		return "ACCESS"
-	case syscall.SYS_PIPE:
+	case unix.SYS_PIPE:
 		return "PIPE"
-	case syscall.SYS_SELECT:
+	case unix.SYS_SELECT:
 		return "SELECT"
-	case syscall.SYS_SCHED_YIELD:
+	case unix.SYS_SCHED_YIELD:
 		return "SCHED_YIELD"
-	case syscall.SYS_MREMAP:
+	case unix.SYS_MREMAP:
 		return "MREMAP"
-	case syscall.SYS_MSYNC:
+	case unix.SYS_MSYNC:
 		return "MSYNC"
-	case syscall.SYS_MINCORE:
+	case unix.SYS_MINCORE:
 		return "MINCORE"
-	case syscall.SYS_MADVISE:
+	case unix.SYS_MADVISE:
 		return "MADVISE"
-	case syscall.SYS_SHMGET:
+	case unix.SYS_SHMGET:
 		return "SHMGET"
-	case syscall.SYS_SHMAT:
+	case unix.SYS_SHMAT:
 		return "SHMAT"
-	case syscall.SYS_SHMCTL:
+	case unix.SYS_SHMCTL:
 		return "SHMCTL"
-	case syscall.SYS_DUP:
+	case unix.SYS_DUP:
 		return "DUP"
-	case syscall.SYS_DUP2:
+	case unix.SYS_DUP2:
 		return "DUP2"
-	case syscall.SYS_PAUSE:
+	case unix.SYS_PAUSE:
 		return "PAUSE"
-	case syscall.SYS_NANOSLEEP:
+	case unix.SYS_NANOSLEEP:
 		return "NANOSLEEP"
-	case syscall.SYS_GETITIMER:
+	case unix.SYS_GETITIMER:
 		return "GETITIMER"
-	case syscall.SYS_ALARM:
+	case unix.SYS_ALARM:
 		return "ALARM"
-	case syscall.SYS_SETITIMER:
+	case unix.SYS_SETITIMER:
 		return "SETITIMER"
-	case syscall.SYS_GETPID:
+	case unix.SYS_GETPID:
 		return "GETPID"
-	case syscall.SYS_SENDFILE:
+	case unix.SYS_SENDFILE:
 		return "SENDFILE"
-	case syscall.SYS_SOCKET:
+	case unix.SYS_SOCKET:
 		return "SOCKET"
-	case syscall.SYS_CONNECT:
+	case unix.SYS_CONNECT:
 		return "CONNECT"
-	case syscall.SYS_ACCEPT:
+	case unix.SYS_ACCEPT:
 		return "ACCEPT"
-	case syscall.SYS_SENDTO:
+	case unix.SYS_SENDTO:
 		return "SENDTO"
-	case syscall.SYS_RECVFROM:
+	case unix.SYS_RECVFROM:
 		return "RECVFROM"
-	case syscall.SYS_SENDMSG:
+	case unix.SYS_SENDMSG:
 		return "SENDMSG"
-	case syscall.SYS_RECVMSG:
+	case unix.SYS_RECVMSG:
 		return "RECVMSG"
-	case syscall.SYS_SHUTDOWN:
+	case unix.SYS_SHUTDOWN:
 		return "SHUTDOWN"
-	case syscall.SYS_BIND:
+	case unix.SYS_BIND:
 		return "BIND"
-	case syscall.SYS_LISTEN:
+	case unix.SYS_LISTEN:
 		return "LISTEN"
-	case syscall.SYS_GETSOCKNAME:
+	case unix.SYS_GETSOCKNAME:
 		return "GETSOCKNAME"
-	case syscall.SYS_GETPEERNAME:
+	case unix.SYS_GETPEERNAME:
 		return "GETPEERNAME"
-	case syscall.SYS_SOCKETPAIR:
+	case unix.SYS_SOCKETPAIR:
 		return "SOCKETPAIR"
-	case syscall.SYS_SETSOCKOPT:
+	case unix.SYS_SETSOCKOPT:
 		return "SETSOCKOPT"
-	case syscall.SYS_GETSOCKOPT:
+	case unix.SYS_GETSOCKOPT:
 		return "GETSOCKOPT"
-	case syscall.SYS_CLONE:
+	case unix.SYS_CLONE:
 		return "CLONE"
-	case syscall.SYS_FORK:
+	case unix.SYS_FORK:
 		return "FORK"
-	case syscall.SYS_VFORK:
+	case unix.SYS_VFORK:
 		return "VFORK"
-	case syscall.SYS_EXECVE:
+	case unix.SYS_EXECVE:
 		return "EXECVE"
-	case syscall.SYS_EXIT:
+	case unix.SYS_EXIT:
 		return "EXIT"
-	case syscall.SYS_WAIT4:
+	case unix.SYS_WAIT4:
 		return "WAIT4"
-	case syscall.SYS_KILL:
+	case unix.SYS_KILL:
 		return "KILL"
-	case syscall.SYS_UNAME:
+	case unix.SYS_UNAME:
 		return "UNAME"
-	case syscall.SYS_SEMGET:
+	case unix.SYS_SEMGET:
 		return "SEMGET"
-	case syscall.SYS_SEMOP:
+	case unix.SYS_SEMOP:
 		return "SEMOP"
-	case syscall.SYS_SEMCTL:
+	case unix.SYS_SEMCTL:
 		return "SEMCTL"
-	case syscall.SYS_SHMDT:
+	case unix.SYS_SHMDT:
 		return "SHMDT"
-	case syscall.SYS_MSGGET:
+	case unix.SYS_MSGGET:
 		return "MSGGET"
-	case syscall.SYS_MSGSND:
+	case unix.SYS_MSGSND:
 		return "MSGSND"
-	case syscall.SYS_MSGRCV:
+	case unix.SYS_MSGRCV:
 		return "MSGRCV"
-	case syscall.SYS_MSGCTL:
+	case unix.SYS_MSGCTL:
 		return "MSGCTL"
-	case syscall.SYS_FCNTL:
+	case unix.SYS_FCNTL:
 		return "FCNTL"
-	case syscall.SYS_FLOCK:
+	case unix.SYS_FLOCK:
 		return "FLOCK"
-	case syscall.SYS_FSYNC:
+	case unix.SYS_FSYNC:
 		return "FSYNC"
-	case syscall.SYS_FDATASYNC:
+	case unix.SYS_FDATASYNC:
 		return "FDATASYNC"
-	case syscall.SYS_TRUNCATE:
+	case unix.SYS_TRUNCATE:
 		return "TRUNCATE"
-	case syscall.SYS_FTRUNCATE:
+	case unix.SYS_FTRUNCATE:
 		return "FTRUNCATE"
-	case syscall.SYS_GETDENTS:
+	case unix.SYS_GETDENTS:
 		return "GETDENTS"
-	case syscall.SYS_GETCWD:
+	case unix.SYS_GETCWD:
 		return "GETCWD"
-	case syscall.SYS_CHDIR:
+	case unix.SYS_CHDIR:
 		return "CHDIR"
-	case syscall.SYS_FCHDIR:
+	case unix.SYS_FCHDIR:
 		return "FCHDIR"
-	case syscall.SYS_RENAME:
+	case unix.SYS_RENAME:
 		return "RENAME"
-	case syscall.SYS_MKDIR:
+	case unix.SYS_MKDIR:
 		return "MKDIR"
-	case syscall.SYS_RMDIR:
+	case unix.SYS_RMDIR:
 		return "RMDIR"
-	case syscall.SYS_CREAT:
+	case unix.SYS_CREAT:
 		return "CREAT"
-	case syscall.SYS_LINK:
+	case unix.SYS_LINK:
 		return "LINK"
-	case syscall.SYS_UNLINK:
+	case unix.SYS_UNLINK:
 		return "UNLINK"
-	case syscall.SYS_SYMLINK:
+	case unix.SYS_SYMLINK:
 		return "SYMLINK"
-	case syscall.SYS_READLINK:
+	case unix.SYS_READLINK:
 		return "READLINK"
-	case syscall.SYS_CHMOD:
+	case unix.SYS_CHMOD:
 		return "CHMOD"
-	case syscall.SYS_FCHMOD:
+	case unix.SYS_FCHMOD:
 		return "FCHMOD"
-	case syscall.SYS_CHOWN:
+	case unix.SYS_CHOWN:
 		return "CHOWN"
-	case syscall.SYS_FCHOWN:
+	case unix.SYS_FCHOWN:
 		return "FCHOWN"
-	case syscall.SYS_LCHOWN:
+	case unix.SYS_LCHOWN:
 		return "LCHOWN"
-	case syscall.SYS_UMASK:
+	case unix.SYS_UMASK:
 		return "UMASK"
-	case syscall.SYS_GETTIMEOFDAY:
+	case unix.SYS_GETTIMEOFDAY:
 		return "GETTIMEOFDAY"
-	case syscall.SYS_GETRLIMIT:
+	case unix.SYS_GETRLIMIT:
 		return "GETRLIMIT"
-	case syscall.SYS_GETRUSAGE:
+	case unix.SYS_GETRUSAGE:
 		return "GETRUSAGE"
-	case syscall.SYS_SYSINFO:
+	case unix.SYS_SYSINFO:
 		return "SYSINFO"
-	case syscall.SYS_TIMES:
+	case unix.SYS_TIMES:
 		return "TIMES"
-	case syscall.SYS_PTRACE:
+	case unix.SYS_PTRACE:
 		return "PTRACE"
-	case syscall.SYS_GETUID:
+	case unix.SYS_GETUID:
 		return "GETUID"
-	case syscall.SYS_SYSLOG:
+	case unix.SYS_SYSLOG:
 		return "SYSLOG"
-	case syscall.SYS_GETGID:
+	case unix.SYS_GETGID:
 		return "GETGID"
-	case syscall.SYS_SETUID:
+	case unix.SYS_SETUID:
 		return "SETUID"
-	case syscall.SYS_SETGID:
+	case unix.SYS_SETGID:
 		return "SETGID"
-	case syscall.SYS_GETEUID:
+	case unix.SYS_GETEUID:
 		return "GETEUID"
-	case syscall.SYS_GETEGID:
+	case unix.SYS_GETEGID:
 		return "GETEGID"
-	case syscall.SYS_SETPGID:
+	case unix.SYS_SETPGID:
 		return "SETPGID"
-	case syscall.SYS_GETPPID:
+	case unix.SYS_GETPPID:
 		return "GETPPID"
-	case syscall.SYS_GETPGRP:
+	case unix.SYS_GETPGRP:
 		return "GETPGRP"
-	case syscall.SYS_SETSID:
+	case unix.SYS_SETSID:
 		return "SETSID"
-	case syscall.SYS_SETREUID:
+	case unix.SYS_SETREUID:
 		return "SETREUID"
-	case syscall.SYS_SETREGID:
+	case unix.SYS_SETREGID:
 		return "SETREGID"
-	case syscall.SYS_GETGROUPS:
+	case unix.SYS_GETGROUPS:
 		return "GETGROUPS"
-	case syscall.SYS_SETGROUPS:
+	case unix.SYS_SETGROUPS:
 		return "SETGROUPS"
-	case syscall.SYS_SETRESUID:
+	case unix.SYS_SETRESUID:
 		return "SETRESUID"
-	case syscall.SYS_GETRESUID:
+	case unix.SYS_GETRESUID:
 		return "GETRESUID"
-	case syscall.SYS_SETRESGID:
+	case unix.SYS_SETRESGID:
 		return "SETRESGID"
-	case syscall.SYS_GETRESGID:
+	case unix.SYS_GETRESGID:
 		return "GETRESGID"
-	case syscall.SYS_GETPGID:
+	case unix.SYS_GETPGID:
 		return "GETPGID"
-	case syscall.SYS_SETFSUID:
+	case unix.SYS_SETFSUID:
 		return "SETFSUID"
-	case syscall.SYS_SETFSGID:
+	case unix.SYS_SETFSGID:
 		return "SETFSGID"
-	case syscall.SYS_GETSID:
+	case unix.SYS_GETSID:
 		return "GETSID"
-	case syscall.SYS_CAPGET:
+	case unix.SYS_CAPGET:
 		return "CAPGET"
-	case syscall.SYS_CAPSET:
+	case unix.SYS_CAPSET:
 		return "CAPSET"
-	case syscall.SYS_RT_SIGPENDING:
+	case unix.SYS_RT_SIGPENDING:
 		return "RT_SIGPENDING"
-	case syscall.SYS_RT_SIGTIMEDWAIT:
+	case unix.SYS_RT_SIGTIMEDWAIT:
 		return "RT_SIGTIMEDWAIT"
-	case syscall.SYS_RT_SIGQUEUEINFO:
+	case unix.SYS_RT_SIGQUEUEINFO:
 		return "RT_SIGQUEUEINFO"
-	case syscall.SYS_RT_SIGSUSPEND:
+	case unix.SYS_RT_SIGSUSPEND:
 		return "RT_SIGSUSPEND"
-	case syscall.SYS_SIGALTSTACK:
+	case unix.SYS_SIGALTSTACK:
 		return "SIGALTSTACK"
-	case syscall.SYS_UTIME:
+	case unix.SYS_UTIME:
 		return "UTIME"
-	case syscall.SYS_MKNOD:
+	case unix.SYS_MKNOD:
 		return "MKNOD"
-	case syscall.SYS_USELIB:
+	case unix.SYS_USELIB:
 		return "USELIB"
-	case syscall.SYS_PERSONALITY:
+	case unix.SYS_PERSONALITY:
 		return "PERSONALITY"
-	case syscall.SYS_USTAT:
+	case unix.SYS_USTAT:
 		return "USTAT"
-	case syscall.SYS_STATFS:
+	case unix.SYS_STATFS:
 		return "STATFS"
-	case syscall.SYS_FSTATFS:
+	case unix.SYS_FSTATFS:
 		return "FSTATFS"
-	case syscall.SYS_SYSFS:
+	case unix.SYS_SYSFS:
 		return "SYSFS"
-	case syscall.SYS_GETPRIORITY:
+	case unix.SYS_GETPRIORITY:
 		return "GETPRIORITY"
-	case syscall.SYS_SETPRIORITY:
+	case unix.SYS_SETPRIORITY:
 		return "SETPRIORITY"
-	case syscall.SYS_SCHED_SETPARAM:
+	case unix.SYS_SCHED_SETPARAM:
 		return "SCHED_SETPARAM"
-	case syscall.SYS_SCHED_GETPARAM:
+	case unix.SYS_SCHED_GETPARAM:
 		return "SCHED_GETPARAM"
-	case syscall.SYS_SCHED_SETSCHEDULER:
+	case unix.SYS_SCHED_SETSCHEDULER:
 		return "SCHED_SETSCHEDULER"
-	case syscall.SYS_SCHED_GETSCHEDULER:
+	case unix.SYS_SCHED_GETSCHEDULER:
 		return "SCHED_GETSCHEDULER"
-	case syscall.SYS_SCHED_GET_PRIORITY_MAX:
+	case unix.SYS_SCHED_GET_PRIORITY_MAX:
 		return "SCHED_GET_PRIORITY_MAX"
-	case syscall.SYS_SCHED_GET_PRIORITY_MIN:
+	case unix.SYS_SCHED_GET_PRIORITY_MIN:
 		return "SCHED_GET_PRIORITY_MIN"
-	case syscall.SYS_SCHED_RR_GET_INTERVAL:
+	case unix.SYS_SCHED_RR_GET_INTERVAL:
 		return "SCHED_RR_GET_INTERVAL"
-	case syscall.SYS_MLOCK:
+	case unix.SYS_MLOCK:
 		return "MLOCK"
-	case syscall.SYS_MUNLOCK:
+	case unix.SYS_MUNLOCK:
 		return "MUNLOCK"
-	case syscall.SYS_MLOCKALL:
+	case unix.SYS_MLOCKALL:
 		return "MLOCKALL"
-	case syscall.SYS_MUNLOCKALL:
+	case unix.SYS_MUNLOCKALL:
 		return "MUNLOCKALL"
-	case syscall.SYS_VHANGUP:
+	case unix.SYS_VHANGUP:
 		return "VHANGUP"
-	case syscall.SYS_MODIFY_LDT:
+	case unix.SYS_MODIFY_LDT:
 		return "MODIFY_LDT"
-	case syscall.SYS_PIVOT_ROOT:
+	case unix.SYS_PIVOT_ROOT:
 		return "PIVOT_ROOT"
-	case syscall.SYS__SYSCTL:
+	case unix.SYS__SYSCTL:
 		return "_SYSCTL"
-	case syscall.SYS_PRCTL:
+	case unix.SYS_PRCTL:
 		return "PRCTL"
-	case syscall.SYS_ARCH_PRCTL:
+	case unix.SYS_ARCH_PRCTL:
 		return "ARCH_PRCTL"
-	case syscall.SYS_ADJTIMEX:
+	case unix.SYS_ADJTIMEX:
 		return "ADJTIMEX"
-	case syscall.SYS_SETRLIMIT:
+	case unix.SYS_SETRLIMIT:
 		return "SETRLIMIT"
-	case syscall.SYS_CHROOT:
+	case unix.SYS_CHROOT:
 		return "CHROOT"
-	case syscall.SYS_SYNC:
+	case unix.SYS_SYNC:
 		return "SYNC"
-	case syscall.SYS_ACCT:
+	case unix.SYS_ACCT:
 		return "ACCT"
-	case syscall.SYS_SETTIMEOFDAY:
+	case unix.SYS_SETTIMEOFDAY:
 		return "SETTIMEOFDAY"
-	case syscall.SYS_MOUNT:
+	case unix.SYS_MOUNT:
 		return "MOUNT"
-	case syscall.SYS_UMOUNT2:
+	case unix.SYS_UMOUNT2:
 		return "UMOUNT2"
-	case syscall.SYS_SWAPON:
+	case unix.SYS_SWAPON:
 		return "SWAPON"
-	case syscall.SYS_SWAPOFF:
+	case unix.SYS_SWAPOFF:
 		return "SWAPOFF"
-	case syscall.SYS_REBOOT:
+	case unix.SYS_REBOOT:
 		return "REBOOT"
-	case syscall.SYS_SETHOSTNAME:
+	case unix.SYS_SETHOSTNAME:
 		return "SETHOSTNAME"
-	case syscall.SYS_SETDOMAINNAME:
+	case unix.SYS_SETDOMAINNAME:
 		return "SETDOMAINNAME"
-	case syscall.SYS_IOPL:
+	case unix.SYS_IOPL:
 		return "IOPL"
-	case syscall.SYS_IOPERM:
+	case unix.SYS_IOPERM:
 		return "IOPERM"
-	case syscall.SYS_CREATE_MODULE:
+	case unix.SYS_CREATE_MODULE:
 		return "CREATE_MODULE"
-	case syscall.SYS_INIT_MODULE:
+	case unix.SYS_INIT_MODULE:
 		return "INIT_MODULE"
-	case syscall.SYS_DELETE_MODULE:
+	case unix.SYS_DELETE_MODULE:
 		return "DELETE_MODULE"
-	case syscall.SYS_GET_KERNEL_SYMS:
+	case unix.SYS_GET_KERNEL_SYMS:
 		return "GET_KERNEL_SYMS"
-	case syscall.SYS_QUERY_MODULE:
+	case unix.SYS_QUERY_MODULE:
 		return "QUERY_MODULE"
-	case syscall.SYS_QUOTACTL:
+	case unix.SYS_QUOTACTL:
 		return "QUOTACTL"
-	case syscall.SYS_NFSSERVCTL:
+	case unix.SYS_NFSSERVCTL:
 		return "NFSSERVCTL"
-	case syscall.SYS_GETPMSG:
+	case unix.SYS_GETPMSG:
 		return "GETPMSG"
-	case syscall.SYS_PUTPMSG:
+	case unix.SYS_PUTPMSG:
 		return "PUTPMSG"
-	case syscall.SYS_AFS_SYSCALL:
+	case unix.SYS_AFS_SYSCALL:
 		return "AFS_SYSCALL"
-	case syscall.SYS_TUXCALL:
+	case unix.SYS_TUXCALL:
 		return "TUXCALL"
-	case syscall.SYS_SECURITY:
+	case unix.SYS_SECURITY:
 		return "SECURITY"
-	case syscall.SYS_GETTID:
+	case unix.SYS_GETTID:
 		return "GETTID"
-	case syscall.SYS_READAHEAD:
+	case unix.SYS_READAHEAD:
 		return "READAHEAD"
-	case syscall.SYS_SETXATTR:
+	case unix.SYS_SETXATTR:
 		return "SETXATTR"
-	case syscall.SYS_LSETXATTR:
+	case unix.SYS_LSETXATTR:
 		return "LSETXATTR"
-	case syscall.SYS_FSETXATTR:
+	case unix.SYS_FSETXATTR:
 		return "FSETXATTR"
-	case syscall.SYS_GETXATTR:
+	case unix.SYS_GETXATTR:
 		return "GETXATTR"
-	case syscall.SYS_LGETXATTR:
+	case unix.SYS_LGETXATTR:
 		return "LGETXATTR"
-	case syscall.SYS_FGETXATTR:
+	case unix.SYS_FGETXATTR:
 		return "FGETXATTR"
-	case syscall.SYS_LISTXATTR:
+	case unix.SYS_LISTXATTR:
 		return "LISTXATTR"
-	case syscall.SYS_LLISTXATTR:
+	case unix.SYS_LLISTXATTR:
 		return "LLISTXATTR"
-	case syscall.SYS_FLISTXATTR:
+	case unix.SYS_FLISTXATTR:
 		return "FLISTXATTR"
-	case syscall.SYS_REMOVEXATTR:
+	case unix.SYS_REMOVEXATTR:
 		return "REMOVEXATTR"
-	case syscall.SYS_LREMOVEXATTR:
+	case unix.SYS_LREMOVEXATTR:
 		return "LREMOVEXATTR"
-	case syscall.SYS_FREMOVEXATTR:
+	case unix.SYS_FREMOVEXATTR:
 		return "FREMOVEXATTR"
-	case syscall.SYS_TKILL:
+	case unix.SYS_TKILL:
 		return "TKILL"
-	case syscall.SYS_TIME:
+	case unix.SYS_TIME:
 		return "TIME"
-	case syscall.SYS_FUTEX:
+	case unix.SYS_FUTEX:
 		return "FUTEX"
-	case syscall.SYS_SCHED_SETAFFINITY:
+	case unix.SYS_SCHED_SETAFFINITY:
 		return "SCHED_SETAFFINITY"
-	case syscall.SYS_SCHED_GETAFFINITY:
+	case unix.SYS_SCHED_GETAFFINITY:
 		return "SCHED_GETAFFINITY"
-	case syscall.SYS_SET_THREAD_AREA:
+	case unix.SYS_SET_THREAD_AREA:
 		return "SET_THREAD_AREA"
-	case syscall.SYS_IO_SETUP:
+	case unix.SYS_IO_SETUP:
 		return "IO_SETUP"
-	case syscall.SYS_IO_DESTROY:
+	case unix.SYS_IO_DESTROY:
 		return "IO_DESTROY"
-	case syscall.SYS_IO_GETEVENTS:
+	case unix.SYS_IO_GETEVENTS:
 		return "IO_GETEVENTS"
-	case syscall.SYS_IO_SUBMIT:
+	case unix.SYS_IO_SUBMIT:
 		return "IO_SUBMIT"
-	case syscall.SYS_IO_CANCEL:
+	case unix.SYS_IO_CANCEL:
 		return "IO_CANCEL"
-	case syscall.SYS_GET_THREAD_AREA:
+	case unix.SYS_GET_THREAD_AREA:
 		return "GET_THREAD_AREA"
-	case syscall.SYS_LOOKUP_DCOOKIE:
+	case unix.SYS_LOOKUP_DCOOKIE:
 		return "LOOKUP_DCOOKIE"
-	case syscall.SYS_EPOLL_CREATE:
+	case unix.SYS_EPOLL_CREATE:
 		return "EPOLL_CREATE"
-	case syscall.SYS_EPOLL_CTL_OLD:
+	case unix.SYS_EPOLL_CTL_OLD:
 		return "EPOLL_CTL_OLD"
-	case syscall.SYS_EPOLL_WAIT_OLD:
+	case unix.SYS_EPOLL_WAIT_OLD:
 		return "EPOLL_WAIT_OLD"
-	case syscall.SYS_REMAP_FILE_PAGES:
+	case unix.SYS_REMAP_FILE_PAGES:
 		return "REMAP_FILE_PAGES"
-	case syscall.SYS_GETDENTS64:
+	case unix.SYS_GETDENTS64:
 		return "GETDENTS64"
-	case syscall.SYS_SET_TID_ADDRESS:
+	case unix.SYS_SET_TID_ADDRESS:
 		return "SET_TID_ADDRESS"
-	case syscall.SYS_RESTART_SYSCALL:
+	case unix.SYS_RESTART_SYSCALL:
 		return "RESTART_SYSCALL"
-	case syscall.SYS_SEMTIMEDOP:
+	case unix.SYS_SEMTIMEDOP:
 		return "SEMTIMEDOP"
-	case syscall.SYS_FADVISE64:
+	case unix.SYS_FADVISE64:
 		return "FADVISE64"
-	case syscall.SYS_TIMER_CREATE:
+	case unix.SYS_TIMER_CREATE:
 		return "TIMER_CREATE"
-	case syscall.SYS_TIMER_SETTIME:
+	case unix.SYS_TIMER_SETTIME:
 		return "TIMER_SETTIME"
-	case syscall.SYS_TIMER_GETTIME:
+	case unix.SYS_TIMER_GETTIME:
 		return "TIMER_GETTIME"
-	case syscall.SYS_TIMER_GETOVERRUN:
+	case unix.SYS_TIMER_GETOVERRUN:
 		return "TIMER_GETOVERRUN"
-	case syscall.SYS_TIMER_DELETE:
+	case unix.SYS_TIMER_DELETE:
 		return "TIMER_DELETE"
-	case syscall.SYS_CLOCK_SETTIME:
+	case unix.SYS_CLOCK_SETTIME:
 		return "CLOCK_SETTIME"
-	case syscall.SYS_CLOCK_GETTIME:
+	case unix.SYS_CLOCK_GETTIME:
 		return "CLOCK_GETTIME"
-	case syscall.SYS_CLOCK_GETRES:
+	case unix.SYS_CLOCK_GETRES:
 		return "CLOCK_GETRES"
-	case syscall.SYS_CLOCK_NANOSLEEP:
+	case unix.SYS_CLOCK_NANOSLEEP:
 		return "CLOCK_NANOSLEEP"
-	case syscall.SYS_EXIT_GROUP:
+	case unix.SYS_EXIT_GROUP:
 		return "EXIT_GROUP"
-	case syscall.SYS_EPOLL_WAIT:
+	case unix.SYS_EPOLL_WAIT:
 		return "EPOLL_WAIT"
-	case syscall.SYS_EPOLL_CTL:
+	case unix.SYS_EPOLL_CTL:
 		return "EPOLL_CTL"
-	case syscall.SYS_TGKILL:
+	case unix.SYS_TGKILL:
 		return "TGKILL"
-	case syscall.SYS_UTIMES:
+	case unix.SYS_UTIMES:
 		return "UTIMES"
-	case syscall.SYS_VSERVER:
+	case unix.SYS_VSERVER:
 		return "VSERVER"
-	case syscall.SYS_MBIND:
+	case unix.SYS_MBIND:
 		return "MBIND"
-	case syscall.SYS_SET_MEMPOLICY:
+	case unix.SYS_SET_MEMPOLICY:
 		return "SET_MEMPOLICY"
-	case syscall.SYS_GET_MEMPOLICY:
+	case unix.SYS_GET_MEMPOLICY:
 		return "GET_MEMPOLICY"
-	case syscall.SYS_MQ_OPEN:
+	case unix.SYS_MQ_OPEN:
 		return "MQ_OPEN"
-	case syscall.SYS_MQ_UNLINK:
+	case unix.SYS_MQ_UNLINK:
 		return "MQ_UNLINK"
-	case syscall.SYS_MQ_TIMEDSEND:
+	case unix.SYS_MQ_TIMEDSEND:
 		return "MQ_TIMEDSEND"
-	case syscall.SYS_MQ_TIMEDRECEIVE:
+	case unix.SYS_MQ_TIMEDRECEIVE:
 		return "MQ_TIMEDRECEIVE"
-	case syscall.SYS_MQ_NOTIFY:
+	case unix.SYS_MQ_NOTIFY:
 		return "MQ_NOTIFY"
-	case syscall.SYS_MQ_GETSETATTR:
+	case unix.SYS_MQ_GETSETATTR:
 		return "MQ_GETSETATTR"
-	case syscall.SYS_KEXEC_LOAD:
+	case unix.SYS_KEXEC_LOAD:
 		return "KEXEC_LOAD"
-	case syscall.SYS_WAITID:
+	case unix.SYS_WAITID:
 		return "WAITID"
-	case syscall.SYS_ADD_KEY:
+	case unix.SYS_ADD_KEY:
 		return "ADD_KEY"
-	case syscall.SYS_REQUEST_KEY:
+	case unix.SYS_REQUEST_KEY:
 		return "REQUEST_KEY"
-	case syscall.SYS_KEYCTL:
+	case unix.SYS_KEYCTL:
 		return "KEYCTL"
-	case syscall.SYS_IOPRIO_SET:
+	case unix.SYS_IOPRIO_SET:
 		return "IOPRIO_SET"
-	case syscall.SYS_IOPRIO_GET:
+	case unix.SYS_IOPRIO_GET:
 		return "IOPRIO_GET"
-	case syscall.SYS_INOTIFY_INIT:
+	case unix.SYS_INOTIFY_INIT:
 		return "INOTIFY_INIT"
-	case syscall.SYS_INOTIFY_ADD_WATCH:
+	case unix.SYS_INOTIFY_ADD_WATCH:
 		return "INOTIFY_ADD_WATCH"
-	case syscall.SYS_INOTIFY_RM_WATCH:
+	case unix.SYS_INOTIFY_RM_WATCH:
 		return "INOTIFY_RM_WATCH"
-	case syscall.SYS_MIGRATE_PAGES:
+	case unix.SYS_MIGRATE_PAGES:
 		return "MIGRATE_PAGES"
-	case syscall.SYS_OPENAT:
+	case unix.SYS_OPENAT:
 		return "OPENAT"
-	case syscall.SYS_MKDIRAT:
+	case unix.SYS_MKDIRAT:
 		return "MKDIRAT"
-	case syscall.SYS_MKNODAT:
+	case unix.SYS_MKNODAT:
 		return "MKNODAT"
-	case syscall.SYS_FCHOWNAT:
+	case unix.SYS_FCHOWNAT:
 		return "FCHOWNAT"
-	case syscall.SYS_FUTIMESAT:
+	case unix.SYS_FUTIMESAT:
 		return "FUTIMESAT"
-	case syscall.SYS_NEWFSTATAT:
+	case unix.SYS_NEWFSTATAT:
 		return "NEWFSTATAT"
-	case syscall.SYS_UNLINKAT:
+	case unix.SYS_UNLINKAT:
 		return "UNLINKAT"
-	case syscall.SYS_RENAMEAT:
+	case unix.SYS_RENAMEAT:
 		return "RENAMEAT"
-	case syscall.SYS_LINKAT:
+	case unix.SYS_LINKAT:
 		return "LINKAT"
-	case syscall.SYS_SYMLINKAT:
+	case unix.SYS_SYMLINKAT:
 		return "SYMLINKAT"
-	case syscall.SYS_READLINKAT:
+	case unix.SYS_READLINKAT:
 		return "READLINKAT"
-	case syscall.SYS_FCHMODAT:
+	case unix.SYS_FCHMODAT:
 		return "FCHMODAT"
-	case syscall.SYS_FACCESSAT:
+	case unix.SYS_FACCESSAT:
 		return "FACCESSAT"
-	case syscall.SYS_PSELECT6:
+	case unix.SYS_PSELECT6:
 		return "PSELECT6"
-	case syscall.SYS_PPOLL:
+	case unix.SYS_PPOLL:
 		return "PPOLL"
-	case syscall.SYS_UNSHARE:
+	case unix.SYS_UNSHARE:
 		return "UNSHARE"
-	case syscall.SYS_SET_ROBUST_LIST:
+	case unix.SYS_SET_ROBUST_LIST:
 		return "SET_ROBUST_LIST"
-	case syscall.SYS_GET_ROBUST_LIST:
+	case unix.SYS_GET_ROBUST_LIST:
 		return "GET_ROBUST_LIST"
-	case syscall.SYS_SPLICE:
+	case unix.SYS_SPLICE:
 		return "SPLICE"
-	case syscall.SYS_TEE:
+	case unix.SYS_TEE:
 		return "TEE"
-	case syscall.SYS_SYNC_FILE_RANGE:
+	case unix.SYS_SYNC_FILE_RANGE:
 		return "SYNC_FILE_RANGE"
-	case syscall.SYS_VMSPLICE:
+	case unix.SYS_VMSPLICE:
 		return "VMSPLICE"
-	case syscall.SYS_MOVE_PAGES:
+	case unix.SYS_MOVE_PAGES:
 		return "MOVE_PAGES"
-	case syscall.SYS_UTIMENSAT:
+	case unix.SYS_UTIMENSAT:
 		return "UTIMENSAT"
-	case syscall.SYS_EPOLL_PWAIT:
+	case unix.SYS_EPOLL_PWAIT:
 		return "EPOLL_PWAIT"
-	case syscall.SYS_SIGNALFD:
+	case unix.SYS_SIGNALFD:
 		return "SIGNALFD"
-	case syscall.SYS_TIMERFD_CREATE:
+	case unix.SYS_TIMERFD_CREATE:
 		return "TIMERFD_CREATE"
-	case syscall.SYS_EVENTFD:
+	case unix.SYS_EVENTFD:
 		return "EVENTFD"
-	case syscall.SYS_FALLOCATE:
+	case unix.SYS_FALLOCATE:
 		return "FALLOCATE"
-	case syscall.SYS_TIMERFD_SETTIME:
+	case unix.SYS_TIMERFD_SETTIME:
 		return "TIMERFD_SETTIME"
-	case syscall.SYS_TIMERFD_GETTIME:
+	case unix.SYS_TIMERFD_GETTIME:
 		return "TIMERFD_GETTIME"
-	case syscall.SYS_ACCEPT4:
+	case unix.SYS_ACCEPT4:
 		return "ACCEPT4"
-	case syscall.SYS_SIGNALFD4:
+	case unix.SYS_SIGNALFD4:
 		return "SIGNALFD4"
-	case syscall.SYS_EVENTFD2:
+	case unix.SYS_EVENTFD2:
 		return "EVENTFD2"
-	case syscall.SYS_EPOLL_CREATE1:
+	case unix.SYS_EPOLL_CREATE1:
 		return "EPOLL_CREATE1"
-	case syscall.SYS_DUP3:
+	case unix.SYS_DUP3:
 		return "DUP3"
-	case syscall.SYS_PIPE2:
+	case unix.SYS_PIPE2:
 		return "PIPE2"
-	case syscall.SYS_INOTIFY_INIT1:
+	case unix.SYS_INOTIFY_INIT1:
 		return "INOTIFY_INIT1"
-	case syscall.SYS_PREADV:
+	case unix.SYS_PREADV:
 		return "PREADV"
-	case syscall.SYS_PWRITEV:
+	case unix.SYS_PWRITEV:
 		return "PWRITEV"
-	case syscall.SYS_RT_TGSIGQUEUEINFO:
+	case unix.SYS_RT_TGSIGQUEUEINFO:
 		return "RT_TGSIGQUEUEINFO"
-	case syscall.SYS_PERF_EVENT_OPEN:
+	case unix.SYS_PERF_EVENT_OPEN:
 		return "PERF_EVENT_OPEN"
-	case syscall.SYS_RECVMMSG:
+	case unix.SYS_RECVMMSG:
 		return "RECVMMSG"
-	case syscall.SYS_FANOTIFY_INIT:
+	case unix.SYS_FANOTIFY_INIT:
 		return "FANOTIFY_INIT"
-	case syscall.SYS_FANOTIFY_MARK:
+	case unix.SYS_FANOTIFY_MARK:
 		return "FANOTIFY_MARK"
-	case syscall.SYS_PRLIMIT64:
+	case unix.SYS_PRLIMIT64:
 		return "PRLIMIT64"
-	case 303:
+	case unix.SYS_NAME_TO_HANDLE_AT:
 		return "NAME_TO_HANDLE_AT"
-	case 304:
+	case unix.SYS_OPEN_BY_HANDLE_AT:
 		return "OPEN_BY_HANDLE_AT"
-	case 305:
+	case unix.SYS_CLOCK_ADJTIME:
 		return "CLOCK_ADJTIME"
-	case 306:
+	case unix.SYS_SYNCFS:
 		return "SYNCFS"
-	case 307:
+	case unix.SYS_SENDMMSG:
 		return "SENDMMSG"
-	case 308:
+	case unix.SYS_SETNS:
 		return "SETNS"
-	case 309:
+	case unix.SYS_GETCPU:
 		return "GETCPU"
-	case 310:
+	case unix.SYS_PROCESS_VM_READV:
 		return "PROCESS_VM_READV"
-	case 311:
+	case unix.SYS_PROCESS_VM_WRITEV:
 		return "PROCESS_VM_WRITEV"
-	case 312:
+	case unix.SYS_KCMP:
 		return "KCMP"
-	case 313:
+	case unix.SYS_FINIT_MODULE:
 		return "FINIT_MODULE"
+	case unix.SYS_SCHED_SETATTR:
+		return "SCHED_SETATTR"
+	case unix.SYS_SCHED_GETATTR:
+		return "SCHED_GETATTR"
+	case unix.SYS_RENAMEAT2:
+		return "RENAMEAT2"
+	case unix.SYS_SECCOMP:
+		return "SECCOMP"
+	case unix.SYS_GETRANDOM:
+		return "GETRANDOM"
+	case unix.SYS_MEMFD_CREATE:
+		return "MEMFD_CREATE"
+	case unix.SYS_KEXEC_FILE_LOAD:
+		return "KEXEC_FILE_LOAD"
+	case unix.SYS_BPF:
+		return "BPF"
+	case unix.SYS_EXECVEAT:
+		return "EXECVEAT"
+	case unix.SYS_USERFAULTFD:
+		return "USERFAULTFD"
+	case unix.SYS_MEMBARRIER:
+		return "MEMBARRIER"
+	case unix.SYS_MLOCK2:
+		return "MLOCK2"
+	case unix.SYS_COPY_FILE_RANGE:
+		return "COPY_FILE_RANGE"
+	case unix.SYS_PREADV2:
+		return "PREADV2"
+	case unix.SYS_PWRITEV2:
+		return "PWRITEV2"
+	case unix.SYS_PKEY_MPROTECT:
+		return "PKEY_MPROTECT"
+	case unix.SYS_PKEY_ALLOC:
+		return "PKEY_ALLOC"
+	case unix.SYS_PKEY_FREE:
+		return "PKEY_FREE"
+	case unix.SYS_STATX:
+		return "STATX"
+	case unix.SYS_IO_PGETEVENTS:
+		return "IO_PGETEVENTS"
+	case unix.SYS_RSEQ:
+		return "RSEQ"
 	}
 	return fmt.Sprintf("%d - ERR_UNKNOWN_SYSCALL", e)
 }
