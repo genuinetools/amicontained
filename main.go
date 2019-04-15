@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/genuinetools/amicontained/version"
 	"github.com/genuinetools/pkg/cli"
@@ -129,7 +130,19 @@ func seccompIter() {
 			continue
 		}
 
-		_, _, err := syscall.Syscall(uintptr(id), 0, 0, 0)
+		// The call may block, so invoke asynchronously and rely on rejections being fast.
+		errs := make(chan error)
+		go func() {
+			_, _, err := syscall.Syscall(uintptr(id), 0, 0, 0)
+			errs <- err
+		}()
+
+		var err error
+		select {
+		case err = <-errs:
+		case <-time.After(100 * time.Millisecond):
+			// The syscall was allowed, but it didn't return
+		}
 
 		// check both EPERM and EACCES - LXC returns EACCES and Docker EPERM
 		if err == syscall.EPERM || err == syscall.EACCES {
