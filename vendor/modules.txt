@@ -6,6 +6,8 @@ github.com/jessfraz/bpfd/proc
 github.com/sirupsen/logrus
 # github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2
 github.com/syndtr/gocapability/capability
+# github.com/tv42/httpunix v0.0.0-20150427012821-b75d8614f926
+github.com/tv42/httpunix
 # golang.org/x/crypto v0.0.0-20180910181607-0e37d006457b
 golang.org/x/crypto/ssh/terminal
 # golang.org/x/sys v0.0.0-20180925112736-b09afc3d579e
