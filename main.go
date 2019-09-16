@@ -4,13 +4,18 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/genuinetools/amicontained/version"
 	"github.com/genuinetools/pkg/cli"
 	"github.com/jessfraz/bpfd/proc"
 	"github.com/sirupsen/logrus"
+	"github.com/tv42/httpunix"
 	"golang.org/x/sys/unix"
 )
 
@@ -94,11 +99,83 @@ func main() {
 
 		seccompIter()
 
+		// Docker.sock
+		fmt.Println("Looking for Docker.sock")
+		getValidSockets("/")
+
 		return nil
 	}
 
 	// Run our program.
 	p.Run()
+}
+
+func walkpath(path string, info os.FileInfo, err error) error {
+	if err != nil {
+		if debug {
+			fmt.Println(err)
+		}
+	} else {
+		switch mode := info.Mode(); {
+		case mode&os.ModeSocket != 0:
+			if debug {
+				fmt.Println("Valid Socket: " + path)
+			}
+			resp, err := checkSock(path)
+			if err == nil {
+				if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
+					fmt.Println("Valid Docker Socket: " + path)
+				} else {
+					if debug {
+						fmt.Println("Invalid Docker Socket: " + path)
+					}
+				}
+				defer resp.Body.Close()
+			} else {
+				if debug {
+					fmt.Println("Invalid Docker Socket: " + path)
+				}
+			}
+		default:
+			if debug {
+				fmt.Println("Invalid Socket: " + path)
+			}
+		}
+	}
+	return nil
+}
+
+func getValidSockets(startPath string) ([]string, error) {
+	err := filepath.Walk(startPath, walkpath)
+	if err != nil {
+		if debug {
+			fmt.Println(err)
+		}
+		return nil, err
+	}
+	return nil, nil
+}
+
+func checkSock(path string) (*http.Response, error) {
+
+	if debug {
+		fmt.Println("[-] Checking Sock for HTTP: " + path)
+	}
+	u := &httpunix.Transport{
+		DialTimeout:           100 * time.Millisecond,
+		RequestTimeout:        1 * time.Second,
+		ResponseHeaderTimeout: 1 * time.Second,
+	}
+	u.RegisterLocation("dockerd", path)
+	var client = http.Client{
+		Transport: u,
+	}
+	resp, err := client.Get("http+unix://dockerd/info")
+
+	if resp == nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 func seccompIter() {
