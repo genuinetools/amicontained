@@ -8,8 +8,22 @@
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Installation](#installation)
+    - [Binaries](#binaries)
+    - [Via Go](#via-go)
+- [Usage](#usage)
+- [Examples](#examples)
+    - [docker](#docker)
+    - [lxc](#lxc)
+    - [systemd-nspawn](#systemd-nspawn)
+    - [rkt](#rkt)
+    - [unshare](#unshare)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
 
