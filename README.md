@@ -1,26 +1,15 @@
 # amicontained
 
-[![Travis CI](https://img.shields.io/travis/genuinetools/amicontained.svg?style=for-the-badge)](https://travis-ci.org/genuinetools/amicontained)
+![make-all](https://github.com/genuinetools/amicontained/workflows/make%20all/badge.svg)
+![make-image](https://github.com/genuinetools/amicontained/workflows/make%20image/badge.svg)
 [![GoDoc](https://img.shields.io/badge/godoc-reference-5272B4.svg?style=for-the-badge)](https://godoc.org/github.com/genuinetools/amicontained)
 [![Github All Releases](https://img.shields.io/github/downloads/genuinetools/amicontained/total.svg?style=for-the-badge)](https://github.com/genuinetools/amicontained/releases)
 
 Container introspection tool. Find out what container runtime is being used as
 well as features available.
 
-<!-- toc -->
-
-- [Installation](#installation)
-    + [Binaries](#binaries)
-    + [Via Go](#via-go)
-- [Usage](#usage)
-- [Examples](#examples)
-    + [docker](#docker)
-    + [lxc](#lxc)
-    + [systemd-nspawn](#systemd-nspawn)
-    + [rkt](#rkt)
-    + [unshare](#unshare)
-
-<!-- tocstop -->
+<!-- START doctoc -->
+<!-- END doctoc -->
 
 ## Installation
 
