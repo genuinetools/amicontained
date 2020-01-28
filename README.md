@@ -19,6 +19,7 @@ well as features available.
 - [Examples](#examples)
     - [docker](#docker)
     - [lxc](#lxc)
+    - [podman](#podman)
     - [systemd-nspawn](#systemd-nspawn)
     - [rkt](#rkt)
     - [unshare](#unshare)
@@ -125,6 +126,27 @@ User Namespace Mappings:
 AppArmor Profile: none
 Capabilities:
 	BOUNDING -> chown dac_override dac_read_search fowner fsetid kill setgid setuid setpcap linux_immutable net_bind_service net_broadcast net_admin net_raw ipc_lock ipc_owner sys_chroot sys_ptrace sys_pacct sys_admin sys_boot sys_nice sys_resource sys_tty_config mknod lease audit_write audit_control setfcap syslog wake_alarm block_suspend audit_read
+```
+
+#### podman
+
+```console
+$ podman run --rm -it r.j3ss.co/amicontained amicontained
+Container Runtime: podman
+Has Namespaces:
+        pid: true
+        user: true
+User Namespace Mappings:
+        Container -> 0  Host -> 1000    Range -> 1
+        Container -> 1  Host -> 100000  Range -> 65536
+AppArmor Profile: system_u:system_r:container_t:s0:c279,c407
+Capabilities:
+        BOUNDING -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
+        AMBIENT -> chown dac_override fowner fsetid kill setgid setuid setpcap net_bind_service net_raw sys_chroot mknod audit_write setfcap
+Seccomp: filtering
+Blocked Syscalls (67):
+        MSGRCV SYSLOG SETPGID SETSID USELIB USTAT SYSFS VHANGUP PIVOT_ROOT _SYSCTL ACCT SETTIMEOFDAY MOUNT UMOUNT2 SWAPON SWAPOFF REBOOT SETHOSTNAME SETDOMAINNAME IOPL IOPERM CREATE_MODULE INIT_MODULE DELETE_MODULE GET_KERNEL_SYMS QUERY_MODULE QUOTACTL NFSSERVCTL GETPMSG PUTPMSG AFS_SYSCALL TUXCALL SECURITY LOOKUP_DCOOKIE CLOCK_SETTIME VSERVER MBIND SET_MEMPOLICY GET_MEMPOLICY KEXEC_LOAD ADD_KEY REQUEST_KEY KEYCTL MIGRATE_PAGES FUTIMESAT UNSHARE MOVE_PAGES UTIMENSAT PERF_EVENT_OPEN FANOTIFY_INIT NAME_TO_HANDLE_AT OPEN_BY_HANDLE_AT CLOCK_ADJTIME SETNS PROCESS_VM_READV PROCESS_VM_WRITEV KCMP FINIT_MODULE KEXEC_FILE_LOAD BPF USERFAULTFD MEMBARRIER PKEY_MPROTECT PKEY_ALLOC PKEY_FREE IO_PGETEVENTS RSEQ
+Looking for Docker.sock
 ```
 
 #### systemd-nspawn
