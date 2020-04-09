@@ -16,6 +16,7 @@ well as features available.
     - [Binaries](#binaries)
     - [Via Go](#via-go)
 - [Usage](#usage)
+    - [One liner](#one-liner)
 - [Examples](#examples)
     - [docker](#docker)
     - [lxc](#lxc)
@@ -52,6 +53,12 @@ Flags:
 Commands:
 
   version  Show the version information.
+```
+
+#### One liner
+
+```console
+wget -O amicontained https://github.com/jessfraz/amicontained/releases/download/v0.4.9/amicontained-linux-amd64; chmod +x amicontained; ./amicontained
 ```
 
 ## Examples
