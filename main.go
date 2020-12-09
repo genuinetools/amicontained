@@ -20,7 +20,8 @@ import (
 )
 
 var (
-	debug bool
+	debug            bool
+	docker_sock_hunt bool
 )
 
 func main() {
@@ -36,6 +37,7 @@ func main() {
 	// Setup the global flags.
 	p.FlagSet = flag.NewFlagSet("ship", flag.ExitOnError)
 	p.FlagSet.BoolVar(&debug, "d", false, "enable debug logging")
+	p.FlagSet.BoolVar(&docker_sock_hunt, "s", false, "enable docker sock hunting")
 
 	// Set the before function.
 	p.Before = func(ctx context.Context) error {
@@ -99,9 +101,11 @@ func main() {
 
 		seccompIter()
 
-		// Docker.sock
-		fmt.Println("Looking for Docker.sock")
-		getValidSockets("/")
+		if docker_sock_hunt {
+			// Docker.sock
+			fmt.Println("Looking for Docker.sock")
+			getValidSockets("/")
+		}
 
 		return nil
 	}
